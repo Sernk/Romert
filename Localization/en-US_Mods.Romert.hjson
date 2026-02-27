@@ -1,0 +1,13 @@
+Items: {
+	AdventurerSpark: {
+		DisplayName: Soul of Hero
+		Tooltip: ""
+	}
+
+	BaseFlask: {
+		DisplayName: Base Flask
+		Tooltip: ""
+	}
+}
+
+DamageClasses.AlchemistsFlask.DisplayName: alchemical damage

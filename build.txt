@@ -1,0 +1,3 @@
+displayName = Tremor 1.4.5
+author = Aeris and original deweloper
+version = 0.1
