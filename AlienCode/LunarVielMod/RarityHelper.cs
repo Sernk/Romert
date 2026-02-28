@@ -37,7 +37,7 @@ namespace Romert.AlienCode.LunarVielMod {
             float sineOffset = MathHelper.Lerp(0.5f, 1f, sine);
             for (int i = 0; i < 12; i++) {
                 Vector2 afterimageOffset = (6.2831855f * (float)i / 12f).ToRotationVector2() * (2f * sineOffset);
-                ChatManager.DrawColorCodedString(Main.spriteBatch, tooltipLine.Font, text, (textPosition + afterimageOffset).RotatedBy((double)(6.2831855f * (float)(i / 12)), default(Vector2)), textOuterColor * 0.9f, tooltipLine.Rotation, tooltipLine.Origin, tooltipLine.BaseScale, -1f, false);
+                ChatManager.DrawColorCodedString(Main.spriteBatch, tooltipLine.Font, text, (textPosition + afterimageOffset).RotatedBy((double)(6.2831855f * (float)(i / 12)), default), textOuterColor * 0.9f, tooltipLine.Rotation, tooltipLine.Origin, tooltipLine.BaseScale, -1f, false);
             }
             Color mainTextColor = Color.Lerp(glowColor, textInnerColor.Value, 0.9f);
             ChatManager.DrawColorCodedString(Main.spriteBatch, tooltipLine.Font, text, textPosition, mainTextColor, tooltipLine.Rotation, tooltipLine.Origin, tooltipLine.BaseScale, -1f, false);

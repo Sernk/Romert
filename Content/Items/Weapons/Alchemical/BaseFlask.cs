@@ -17,7 +17,7 @@ public class BaseFlask : AbstractAlchemicalItem {
         Item.knockBack = 1;
         Item.UseSound = SoundID.Item106;
         Item.value = 30;
-        Item.rare = 1;
+        Item.rare = ItemRarityID.Blue;
         Item.autoReuse = false;
         Item.IsTest();
     }
