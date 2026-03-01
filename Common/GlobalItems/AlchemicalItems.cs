@@ -1,23 +1,23 @@
 ﻿using Romert.Common.Players;
-using Romert.Core;
+using System.Collections.Generic;
 
 namespace Romert.Common.GlobalItems;
 
 public class AlchemicalItems : GlobalItem {
-    public bool IsAlchemistPoisoning = false;
+    public HashSet<int> IsAlchemistPoisoningItems = [];
 
     public override bool InstancePerEntity => true;
-    public override bool CanUseItem(Item item, Player player) {
-        bool orgin = base.CanUseItem(item, player);
-        AlchemistPlayer alchemist = player.GetModPlayer<AlchemistPlayer>();
-        if (IsAlchemistPoisoning) { BaseLogic(alchemist, 0, orgin); }
-        return orgin;
+    public override void HoldItem(Item item, Player player) {
+        AlchemistPlayer alchemist = AlchemistPlayer.GetPlayer(player);
+        if (IsAlchemistPoisoningItems.Contains(item.type)) { alchemist.ActiveCurrentAlchemist = true; alchemist.AlchemistDatas[0].IsActive = true; }
     }
-    public static bool BaseLogic(AlchemistPlayer player, int id, bool flag) {
-        if (player.AlchemistDictionary == null) { return flag; }
-        player.AlchemistDictionary.TryGetValue(AlchemistDataID.GetByID(id), out AlchemistData alchemistData);
-        if (alchemistData.CurrentProgress != alchemistData.PointsToDebuffTotal + player.BonusMaxPointsToDebuff) { alchemistData.AddPoints(player); }
-        Main.NewText(player.CurrentAlchemist.CurrentProgress);
-        return flag;
+    public override void UpdateAccessory(Item item, Player player, bool hideVisual) {
+        //if(item.type == 5000) {
+        //    //AlchemistPlayer player1 = player.GetModPlayer<AlchemistPlayer>();
+        //    //player1.CurrentAlchemist.ModifyPointsEarned += 9;
+        //    //player1.BonusPointsEarned += 20;
+        //    ////player1.CurrentAlchemist.ResetPoints();
+        //    //Main.NewText(player1.CurrentAlchemist.CurrentProgress);
+        //}
     }
 }

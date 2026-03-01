@@ -19,6 +19,6 @@ public class BaseFlask : AbstractAlchemicalItem {
         Item.value = 30;
         Item.rare = ItemRarityID.Blue;
         Item.autoReuse = false;
-        Item.IsTest();
+        Item.IsAlchemistPoisoning();
     }
 }

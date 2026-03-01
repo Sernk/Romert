@@ -3,6 +3,5 @@
 namespace Romert.Helpers;
 // TODO: Normal name for vareable
 public static partial class AlchemicalHelper {
-    public static void IsTest(this AlchemicalItems items) => items.IsAlchemistPoisoning = true; // ?
-    public static void IsTest(this Item items) => items.GetGlobalItem<AlchemicalItems>().IsAlchemistPoisoning = true; // >_<
+    public static void IsAlchemistPoisoning(this Item item) => item.GetGlobalItem<AlchemicalItems>().IsAlchemistPoisoningItems.Add(item.type);
 }

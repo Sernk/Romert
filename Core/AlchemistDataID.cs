@@ -7,7 +7,7 @@ public class AlchemistDataID : ILoadable {
     public static Dictionary<int, string> DataID { get; private set; } = [];
 
     internal static void Register(int id, string name) => DataID.Add(id, name);
-    public static string GetByID(int id) => DataID.TryGetValue(id, out string name) ? name : "Error";
+    public static string GetByID(int id) => DataID.TryGetValue(id, out string name) ? name : "error";
     public void Load(Mod mod) {
         Register(0, "AlchemistPoisoning");
 

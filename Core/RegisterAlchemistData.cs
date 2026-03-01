@@ -13,6 +13,8 @@ public class RegisterAlchemistData {
             player.AlchemistDatas[i].ModifyPointsEarned = 0;
             player.AlchemistDatas[i].ModifyDebuffTime = 0;
             player.AlchemistDatas[i].ModifyMaxPointsToDebuff = 0;
+            player.AlchemistDatas[i].ModifyTimeToDeletePoints = 0;
+            player.AlchemistDatas[i].IsActive = false;
             i++;
         }
     }
