@@ -17,6 +17,6 @@ namespace Romert.AlienCode.LunarVielMod {
             ThornedRarityGlow = null;
         }
 
-        public static string Path(string name) => Textures.GetTextureName("Particles/" + name);
+        public static string Path(string name) => Textures.GetTexture("Particles/" + name);
     }
 }

@@ -5,5 +5,6 @@ global using Terraria.ID;
 global using Terraria.ModLoader;
 global using static Terraria.ModLoader.ModContent;
 global using Romert.Core.AbstractType;
+global using static Romert.Resources.Textures;
 
 namespace Romert;

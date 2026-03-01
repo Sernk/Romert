@@ -10,7 +10,7 @@ namespace Romert.Common.GlobalItems {
         public override bool PreDrawTooltip(Item item, ReadOnlyCollection<TooltipLine> lines, ref int x, ref int y) {
             if (oldItem) {
                 SpriteBatch sprite = Main.spriteBatch;
-                sprite.Draw(GetTextureName("OriginalItemToolTips").GetAsset().Value, new Vector2(x, y - 20), Color.White);
+                sprite.Draw(GetTexture("OriginalItemToolTips").GetAsset().Value, new Vector2(x, y - 20), Color.White);
             }
             return true;
         }

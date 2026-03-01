@@ -10,6 +10,7 @@ public class AlchemistPlayer : ModPlayer {
     public int BonusDebuffTime;
     public int BonusDeletePoints;
     public int TimeSinceLastImpact;
+    public int TimeSnake = 0;
     public int TimeToDeletePoints;
     public int CurrentTime;
 
@@ -26,6 +27,7 @@ public class AlchemistPlayer : ModPlayer {
         BonusDebuffTime = 0;
         BonusDeletePoints = 0;
         TimeSinceLastImpact = 0;
+        TimeSnake = 0;
         CurrentTime = 0;
         ActiveCurrentAlchemist = false;
         CurrentAlchemist = new("MainAlchemist");
@@ -48,14 +50,18 @@ public class AlchemistPlayer : ModPlayer {
         }
         CurrentTime++;
         PreAddBuff();
+        if (TimeSnake > 0) TimeSnake--;
     }
     void PreAddBuff() {
         if (CurrentAlchemist.CurrentProgress != 0) {
-            if (CurrentTime >= CurrentAlchemist.TimeToDeletePointsTotal + TimeToDeletePoints + TimeSinceLastImpact) {
-                CurrentAlchemist.DeletePoints(this);
-                TimeSinceLastImpact = 0;
-                CurrentTime = 0;
+            if (TimeSinceLastImpact == 0) {
+                if (CurrentTime >= CurrentAlchemist.TimeToDeletePointsTotal + TimeToDeletePoints) {
+                    CurrentAlchemist.DeletePoints(this);
+                    TimeSinceLastImpact = 0;
+                    CurrentTime = 0;
+                }
             }
+            else { if (TimeSinceLastImpact > 0) { TimeSinceLastImpact--; } }
         }
         AddDebuff();
     }
@@ -69,7 +75,7 @@ public class AlchemistPlayer : ModPlayer {
     public override bool CanUseItem(Item item) {
         bool orgin = base.CanUseItem(item);
         AlchemicalItems alchemicalItems = item.GetGlobalItem<AlchemicalItems>();
-        if (alchemicalItems.IsAlchemistPoisoningItems.Contains(item.type)) { BaseLogic(0, orgin); TimeSinceLastImpact = 30; }
+        if (alchemicalItems.IsAlchemistPoisoningItems.Contains(item.type)) { BaseLogic(0, orgin); TimeSinceLastImpact = 45; TimeSnake = 75; }
         return orgin;
     }
     public bool BaseLogic(int id, bool flag) {

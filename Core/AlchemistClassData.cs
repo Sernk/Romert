@@ -2,9 +2,7 @@
 
 namespace Romert.Core;
 
-/// <summary>
-/// Represents alchemical debuff data used by <see cref="AlchemistPlayer"/>.
-/// </summary>
+/// <summary>Represents alchemical debuff data used by <see cref="AlchemistPlayer"/>. </summary>
 public class AlchemistData(string name = "error", int debuff = -1) {
     public bool IsActive { get; set; } = false;
 
