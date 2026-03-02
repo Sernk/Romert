@@ -19,10 +19,10 @@ public class RegisterAlchemistData {
         }
     }
     internal static void Update(AlchemistPlayer player) {
-        RegisterData(ref AlchemistPoisoning, player, "AlchemistPoisoning", 2);
+        RegisterData(ref AlchemistPoisoning, player, "AlchemistPoisoning", 2, "AlchemistPoisoningColor");
     }
-    public static AlchemistData RegisterData(ref AlchemistData data, AlchemistPlayer player, string name, int debuff) {
-        data = new(name, debuff);
+    public static AlchemistData RegisterData(ref AlchemistData data, AlchemistPlayer player, string name, int debuff, string barName) {
+        data = new(name, debuff, barName);
         player.AlchemistDatas.Add(data);
         player.AlchemistDictionary.Add(name, data);
         return data;

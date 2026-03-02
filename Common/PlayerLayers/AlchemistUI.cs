@@ -14,7 +14,7 @@ namespace Romert.Common.PlayerLayers {
             Vector2 barPos = new(pos.X, pos.Y + 40);
             barPos += shake;
             Texture2D bar = GetUI(ShortCat[0] + "AlchemistBar").GetAsset().Value;
-            Texture2D barColor = GetUI(ShortCat[0] + "AlchemistPoisoningColor").GetAsset().Value;
+            Texture2D barColor = GetUI(ShortCat[0] + alchemist.BarColorName).GetAsset().Value;
             float progress = (float)alchemist.PointsToDebuffTotal <= 0 ? 1f : (float)alchemist.CurrentProgress / (float)alchemist.PointsToDebuffTotal;
             int barWidth = (int)(barColor.Width * MathHelper.Clamp(progress, 0f, 1f));
             DrawData barData = new(bar, barPos, null, Color.White, 0f, bar.Size() * 0.5f, Main.UIScale, SpriteEffects.None, 0);

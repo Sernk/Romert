@@ -3,11 +3,10 @@
 namespace Romert.Core;
 
 /// <summary>Represents alchemical debuff data used by <see cref="AlchemistPlayer"/>. </summary>
-public class AlchemistData(string name = "error", int debuff = -1) {
+public class AlchemistData(string name = "error", int debuff = -1, string barColor = "error") {
     public bool IsActive { get; set; } = false;
-
     public string Name { get; private set; } = name;
-
+    public string BarColorName { get; private set; } = barColor;
     public int Debuff { get; private set; } = debuff;
     public int CurrentProgress { get; private set; }
 
@@ -38,6 +37,7 @@ public class AlchemistData(string name = "error", int debuff = -1) {
 
     public int AddPoints(AlchemistPlayer player) => CurrentProgress += PointsEarnedTotal + player.BonusPointsEarned;
     public void ResetPoints() => CurrentProgress = 0;
-    public void EditsDebuff (int newDebuff) => Debuff = newDebuff;
     public void DeletePoints(AlchemistPlayer player) => CurrentProgress -= DeletePointsTotal + player.BonusDeletePoints;
+    public void EditsDebuff(int newDebuff) => Debuff = newDebuff;
+    public void EditBar(string newName) => BarColorName = newName;
 }
