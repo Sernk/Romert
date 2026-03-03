@@ -3,9 +3,11 @@
 namespace Romert.Core;
 
 /// <summary>Represents alchemical debuff data used by <see cref="AlchemistPlayer"/>. </summary>
-public class AlchemistData(string name = "error", int debuff = -1, string barColor = "error") {
+public class AlchemistData(string name = "error", int debuff = -1, string barColor = "error", string modName = "Romert") {
     public bool IsActive { get; set; } = false;
     public string Name { get; private set; } = name;
+    /// <summary> For custom texture bar and skull. </summary>
+    public string ModName { get; private set; } = modName;
     public string BarColorName { get; private set; } = barColor;
     public int Debuff { get; private set; } = debuff;
     public int CurrentProgress { get; private set; }

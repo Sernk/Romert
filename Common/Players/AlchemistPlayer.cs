@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Romert.Common.Players;
 
 public class AlchemistPlayer : ModPlayer {
-    public int BonusMaxPointsToDebuff;
+    public int BonusPointsToDebuff;
     public int BonusPointsEarned;
     public int BonusDebuffTime;
     public int BonusDeletePoints;
@@ -13,6 +13,12 @@ public class AlchemistPlayer : ModPlayer {
     public int TimeSnake = 0;
     public int TimeToDeletePoints;
     public int CurrentTime;
+
+    public int DebuffTimeTotal => CurrentAlchemist.DebuffTimeTotal + BonusDebuffTime;
+    public int PointsToDebuffTotal => CurrentAlchemist.PointsToDebuffTotal + BonusPointsToDebuff;
+    public int PointsEarnedTotal => CurrentAlchemist.PointsEarnedTotal + BonusPointsEarned;
+    public int TimeToDeletePointsTotal => CurrentAlchemist.TimeToDeletePointsTotal + TimeToDeletePoints;
+    public int DeletePointsTotal => CurrentAlchemist.DeletePointsTotal + BonusDeletePoints;
 
     public bool ActiveCurrentAlchemist { get; internal set; }
 
@@ -22,7 +28,7 @@ public class AlchemistPlayer : ModPlayer {
 
     public static AlchemistPlayer GetPlayer(Player player) => player.GetModPlayer<AlchemistPlayer>();
     public override void Initialize() {
-        BonusMaxPointsToDebuff = 0;
+        BonusPointsToDebuff = 0;
         BonusPointsEarned = 0; 
         BonusDebuffTime = 0;
         BonusDeletePoints = 0;
@@ -36,7 +42,7 @@ public class AlchemistPlayer : ModPlayer {
         RegisterAlchemistData.Init();
     }
     public override void ResetEffects() {
-        BonusMaxPointsToDebuff = 0;
+        BonusPointsToDebuff = 0;
         BonusPointsEarned = 0;
         BonusDebuffTime = 0;
         BonusDeletePoints = 0;
@@ -67,7 +73,7 @@ public class AlchemistPlayer : ModPlayer {
     }
     // TODO: Micro fix
     public void AddDebuff() {
-        if (CurrentAlchemist.CurrentProgress >= CurrentAlchemist.PointsToDebuffTotal + BonusMaxPointsToDebuff) {
+        if (CurrentAlchemist.CurrentProgress >= CurrentAlchemist.PointsToDebuffTotal + BonusPointsToDebuff) {
             Player.AddBuff(CurrentAlchemist.Debuff, CurrentAlchemist.DebuffTimeTotal + BonusDebuffTime);
             CurrentAlchemist.ResetPoints();
         }
@@ -81,7 +87,7 @@ public class AlchemistPlayer : ModPlayer {
     public bool BaseLogic(int id, bool flag) {
         if (AlchemistDictionary == null) { return flag; }
         AlchemistDictionary.TryGetValue(AlchemistDataID.GetByID(id), out AlchemistData alchemistData);
-        if (alchemistData.CurrentProgress != alchemistData.PointsToDebuffTotal + BonusMaxPointsToDebuff) { alchemistData.AddPoints(this); }
+        if (alchemistData.CurrentProgress != alchemistData.PointsToDebuffTotal + BonusPointsToDebuff) { alchemistData.AddPoints(this); }
         return flag;
     }
 }
