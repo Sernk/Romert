@@ -1,32 +1,36 @@
-﻿using Romert.Common.GlobalItems;
-using Romert.Core;
+﻿using Romert.Core;
 using System.Collections.Generic;
 
 namespace Romert.Common.Players;
 
 public class AlchemistPlayer : ModPlayer {
+    #region Flag
     public int BonusPointsToDebuff;
     public int BonusPointsEarned;
     public int BonusDebuffTime;
     public int BonusDeletePoints;
     public int TimeSinceLastImpact;
-    public int TimeSnake = 0;
+    public int TimeSnake;
     public int TimeToDeletePoints;
     public int CurrentTime;
+    #endregion
 
+    #region Propertis
     public int DebuffTimeTotal => CurrentAlchemist.DebuffTimeTotal + BonusDebuffTime;
     public int PointsToDebuffTotal => CurrentAlchemist.PointsToDebuffTotal + BonusPointsToDebuff;
     public int PointsEarnedTotal => CurrentAlchemist.PointsEarnedTotal + BonusPointsEarned;
     public int TimeToDeletePointsTotal => CurrentAlchemist.TimeToDeletePointsTotal + TimeToDeletePoints;
     public int DeletePointsTotal => CurrentAlchemist.DeletePointsTotal + BonusDeletePoints;
 
-    public bool ActiveCurrentAlchemist { get; internal set; }
+    public bool ActiveCurrentAlchemist { get; private set; }
 
     public AlchemistData CurrentAlchemist { get; private set; }
     public List<AlchemistData> AlchemistDatas { get; private set; }
     public Dictionary<string, AlchemistData> AlchemistDictionary { get; private set; }
 
     public static AlchemistPlayer GetPlayer(Player player) => player.GetModPlayer<AlchemistPlayer>();
+    #endregion
+
     public override void Initialize() {
         BonusPointsToDebuff = 0;
         BonusPointsEarned = 0; 
@@ -54,14 +58,19 @@ public class AlchemistPlayer : ModPlayer {
             if (AlchemistDatas[i].IsActive) { CurrentAlchemist = AlchemistDatas[i]; }
             i++;
         }
+        ActiveCurrentAlchemist = CurrentAlchemist.IsActive;
         CurrentTime++;
-        PreAddBuff();
+        PreAddDebuff();
         if (TimeSnake > 0) TimeSnake--;
     }
-    void PreAddBuff() {
+    void PreAddDebuff() {
+        DeletePoints();
+        AddDebuff();
+    }
+    void DeletePoints() {
         if (CurrentAlchemist.CurrentProgress != 0) {
             if (TimeSinceLastImpact == 0) {
-                if (CurrentTime >= CurrentAlchemist.TimeToDeletePointsTotal + TimeToDeletePoints) {
+                if (CurrentTime >= TimeToDeletePointsTotal) {
                     CurrentAlchemist.DeletePoints(this);
                     TimeSinceLastImpact = 0;
                     CurrentTime = 0;
@@ -69,25 +78,18 @@ public class AlchemistPlayer : ModPlayer {
             }
             else { if (TimeSinceLastImpact > 0) { TimeSinceLastImpact--; } }
         }
-        AddDebuff();
     }
-    // TODO: Micro fix
-    public void AddDebuff() {
-        if (CurrentAlchemist.CurrentProgress >= CurrentAlchemist.PointsToDebuffTotal + BonusPointsToDebuff) {
-            Player.AddBuff(CurrentAlchemist.Debuff, CurrentAlchemist.DebuffTimeTotal + BonusDebuffTime);
+    void AddDebuff() {
+        if (CurrentAlchemist.CurrentProgress >= PointsToDebuffTotal) {
+            Player.AddBuff(CurrentAlchemist.Debuff, DebuffTimeTotal);
             CurrentAlchemist.ResetPoints();
         }
     }
-    public override bool CanUseItem(Item item) {
-        bool orgin = base.CanUseItem(item);
-        AlchemicalItems alchemicalItems = item.GetGlobalItem<AlchemicalItems>();
-        if (alchemicalItems.IsAlchemistPoisoningItems.Contains(item.type)) { BaseLogic(0, orgin); TimeSinceLastImpact = 45; TimeSnake = 75; }
-        return orgin;
-    }
-    public bool BaseLogic(int id, bool flag) {
+    public bool AddPoints(int id, bool flag) {
         if (AlchemistDictionary == null) { return flag; }
         AlchemistDictionary.TryGetValue(AlchemistDataID.GetByID(id), out AlchemistData alchemistData);
-        if (alchemistData.CurrentProgress != alchemistData.PointsToDebuffTotal + BonusPointsToDebuff) { alchemistData.AddPoints(this); }
+        if (alchemistData.CurrentProgress != PointsToDebuffTotal) { alchemistData.AddPoints(this); }
+        TimeSinceLastImpact = 45; TimeSnake = 75;
         return flag;
     }
 }

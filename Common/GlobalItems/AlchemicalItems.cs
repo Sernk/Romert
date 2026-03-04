@@ -1,4 +1,5 @@
 ﻿using Romert.Common.Players;
+using Romert.Core;
 using System.Collections.Generic;
 
 namespace Romert.Common.GlobalItems;
@@ -9,7 +10,13 @@ public class AlchemicalItems : GlobalItem {
     public override bool InstancePerEntity => true;
     public override void HoldItem(Item item, Player player) {
         AlchemistPlayer alchemist = AlchemistPlayer.GetPlayer(player);
-        if (IsAlchemistPoisoningItems.Contains(item.type)) { alchemist.ActiveCurrentAlchemist = true; alchemist.AlchemistDatas[0].IsActive = true; }
+        if (IsAlchemistPoisoningItems.Contains(item.type)) { alchemist.AlchemistDatas[0].IsActive = true; }
+    }
+    public override bool CanUseItem(Item item, Player player) {
+        bool orgin = base.CanUseItem(item, player);
+        AlchemistPlayer alchemist = player.GetModPlayer<AlchemistPlayer>();
+        if (IsAlchemistPoisoningItems.Contains(item.type)) { alchemist.AddPoints(0, orgin); }
+        return orgin;
     }
     public override void UpdateAccessory(Item item, Player player, bool hideVisual) {
         //if(item.type == 5000) {

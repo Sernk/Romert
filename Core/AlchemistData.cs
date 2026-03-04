@@ -2,7 +2,7 @@
 
 namespace Romert.Core;
 
-/// <summary>Represents alchemical debuff data used by <see cref="AlchemistPlayer"/>. </summary>
+/// <summary> see <see cref="AlchemistPlayer"/>. </summary>
 public class AlchemistData(string name = "error", int debuff = -1, string barColor = "error", string modName = "Romert") {
     public bool IsActive { get; set; } = false;
     public string Name { get; private set; } = name;
@@ -29,6 +29,7 @@ public class AlchemistData(string name = "error", int debuff = -1, string barCol
     public int ModifyTimeToDeletePoints;
 
     public const int BaseDeletePoints = 1;
+    /// <summary> Changes to these variables only affect specific AlchemistData. </summary>
     public int ModifyDeletePoints;
 
     public int DebuffTimeTotal => BaseDebuffTime + ModifyDebuffTime;
@@ -37,9 +38,9 @@ public class AlchemistData(string name = "error", int debuff = -1, string barCol
     public int TimeToDeletePointsTotal => BaseTimeToDeletePoints + ModifyTimeToDeletePoints;
     public int DeletePointsTotal => BaseDeletePoints + ModifyDeletePoints;
 
-    public int AddPoints(AlchemistPlayer player) => CurrentProgress += PointsEarnedTotal + player.BonusPointsEarned;
+    public int AddPoints(AlchemistPlayer player) => CurrentProgress += player.PointsEarnedTotal;
     public void ResetPoints() => CurrentProgress = 0;
-    public void DeletePoints(AlchemistPlayer player) => CurrentProgress -= DeletePointsTotal + player.BonusDeletePoints;
+    public void DeletePoints(AlchemistPlayer player) => CurrentProgress -= player.DeletePointsTotal;
     public void EditsDebuff(int newDebuff) => Debuff = newDebuff;
     public void EditBar(string newName) => BarColorName = newName;
 }
