@@ -1,28 +1,16 @@
-using MonoMod.RuntimeDetour;
-using MonoMod.RuntimeDetour.HookGen;
-using System;
-using System.Reflection;
+using Terraria.UI;
 
-namespace Romert
-{
-	// Please read https://github.com/tModLoader/tModLoader/wiki/Basic-tModLoader-Modding-Guide#mod-skeleton-contents for more information about the various files in a mod.
-	public class Romert : Mod
-	{
-        Hook roa;
+namespace Romert;
 
-        delegate bool orig_IsBiomeActive(object type, Player player);
-        delegate bool orig_GetBiomeActive(orig_IsBiomeActive orig_GetBiomeActive, object type, Player player);
+public class Romert : Mod {
+    public static Mod Instruction { get; private set; }
+    Romert() { Instruction = this; }
 
-        public override void Load() {
-			if (ModLoader.TryGetMod("RoA", out Mod RoAMod)) {
-                //RoA.Content.Biomes.Backwoods
-                Type BackwoodsBiomeClass = RoAMod.GetType().Assembly.GetType("RoA.Content.Biomes.Backwoods.BackwoodsBiome");
-                MethodInfo targetMethod = BackwoodsBiomeClass.GetMethod("IsBiomeActive", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-                roa = new Hook(targetMethod, (orig_GetBiomeActive)RoAIsBiomeActive);
-            }
-        }
-        bool RoAIsBiomeActive(orig_IsBiomeActive orig, object type, Player player) {
-            return false;
-        }
+    public const string ModName = "Romert";
+
+    public UserInterface AlchemistTableUI { get; private set; }
+
+    public override void Load() {
+        AlchemistTableUI = new UserInterface();
     }
 }

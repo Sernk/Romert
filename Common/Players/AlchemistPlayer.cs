@@ -44,6 +44,7 @@ public class AlchemistPlayer : ModPlayer {
         AlchemistDatas = [];
         AlchemistDictionary = [];
         RegisterAlchemistData.Init();
+        RegisterAlchemistData.Update(this);
     }
     public override void ResetEffects() {
         BonusPointsToDebuff = 0;
@@ -52,16 +53,15 @@ public class AlchemistPlayer : ModPlayer {
         BonusDeletePoints = 0;
         RegisterAlchemistData.Reset(this);
     }
-    public override void OnEnterWorld() => RegisterAlchemistData.Update(this);
     public override void PostUpdate() {
         for (int i = 0; i < AlchemistDatas.Count;) {
             if (AlchemistDatas[i].IsActive) { CurrentAlchemist = AlchemistDatas[i]; }
             i++;
         }
         ActiveCurrentAlchemist = CurrentAlchemist.IsActive;
-        CurrentTime++;
+        if (CurrentAlchemist.CurrentProgress != 0) { CurrentTime++; }
         PreAddDebuff();
-        if (TimeSnake > 0) TimeSnake--;
+        if (TimeSnake > 0) { TimeSnake--; }
     }
     void PreAddDebuff() {
         DeletePoints();
@@ -86,8 +86,7 @@ public class AlchemistPlayer : ModPlayer {
         }
     }
     public bool AddPoints(int id, bool flag) {
-        if (AlchemistDictionary == null) { return flag; }
-        AlchemistDictionary.TryGetValue(AlchemistDataID.GetByID(id), out AlchemistData alchemistData);
+        if (!AlchemistDictionary.TryGetValue(AlchemistDataID.GetByID(id), out AlchemistData alchemistData)) { return flag; }
         if (alchemistData.CurrentProgress != PointsToDebuffTotal) { alchemistData.AddPoints(this); }
         TimeSinceLastImpact = 45; TimeSnake = 75;
         return flag;

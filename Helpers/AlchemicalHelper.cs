@@ -1,7 +1,14 @@
 ﻿using Romert.Common.GlobalItems;
+using System.Collections.Generic;
 
 namespace Romert.Helpers;
-// TODO: Normal name for vareable
 public static partial class AlchemicalHelper {
-    public static void IsAlchemistPoisoning(this Item item) => item.GetGlobalItem<AlchemicalItems>().IsAlchemistPoisoningItems.Add(item.type);
+    public static T Get<T>(this Item item) where T : GlobalItem => item.GetGlobalItem<T>();
+    public static AlchemicalItems Get(Item item) => item.GetGlobalItem<AlchemicalItems>();
+    public static void IsAlchemistPoisoning(this Item item) => IsDebuffItem(item, Get(item).IsAlchemistPoisoningItems);
+    public static bool IsFlaskItem(this Item item) => Get(item).isFlask = true;
+    public static void IsDebuffItem(Item item, HashSet<int> debuff) {
+        debuff.Add(item.type);
+        IsFlaskItem(item);
+    }
 }

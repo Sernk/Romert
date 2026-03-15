@@ -11,3 +11,4 @@ Items: {
 }
 
 DamageClasses.AlchemistsFlask.DisplayName: alchemical damage
+Tiles.AlchemicalShelf.MapEntry: Alchemical Shelf
