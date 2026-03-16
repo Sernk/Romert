@@ -21,14 +21,13 @@ public class AlchemistPlayer : ModPlayer {
     public int PointsEarnedTotal => CurrentAlchemist.PointsEarnedTotal + BonusPointsEarned;
     public int TimeToDeletePointsTotal => CurrentAlchemist.TimeToDeletePointsTotal + TimeToDeletePoints;
     public int DeletePointsTotal => CurrentAlchemist.DeletePointsTotal + BonusDeletePoints;
-
     public bool ActiveCurrentAlchemist { get; private set; }
+    #endregion
 
+    #region AlchemistData
     public AlchemistData CurrentAlchemist { get; private set; }
     public List<AlchemistData> AlchemistDatas { get; private set; }
     public Dictionary<string, AlchemistData> AlchemistDictionary { get; private set; }
-
-    public static AlchemistPlayer GetPlayer(Player player) => player.GetModPlayer<AlchemistPlayer>();
     #endregion
 
     public override void Initialize() {

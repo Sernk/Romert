@@ -9,11 +9,14 @@ public class VanillaItemSlotWrapper : UIElement {
     public Texture2D ItemTypeTexture;
     public Texture2D SlotTexture;
     public Item Item;
-    private readonly int _context;
-    private readonly float _scale;
     public Func<Item, bool> ValidItemFunc;
     public Predicate<Item> IsVisible;
     public float Alpha = 1f;
+    public Vector2 Position = Vector2.Zero;
+    public bool IsHoverSlot { get; private set; } = false;
+
+    readonly int _context;
+    readonly float _scale;
 
     public VanillaItemSlotWrapper(int context = ItemSlot.Context.BankItem, float scale = 1f) {
         _context = context;
@@ -30,19 +33,29 @@ public class VanillaItemSlotWrapper : UIElement {
         Color color = Color.White * Alpha;
         float drawScale = _scale * 1.25f;
         Main.inventoryScale = _scale;
-        Rectangle rectangle = GetDimensions().ToRectangle();
-        Vector2 slotCenter = rectangle.TopLeft() + new Vector2(TextureAssets.InventoryBack9.Value.Width * _scale / 2f, TextureAssets.InventoryBack9.Value.Height * _scale / 2f);
 
-        if (ContainsPoint(Main.MouseScreen) && !PlayerInput.IgnoreMouseInterface) {
+        SlotTexture ??= TextureAssets.InventoryBack9.Value;
+
+        Vector2 size = SlotTexture.Size() * drawScale;
+        Rectangle rect = new((int)(Position.X - size.X / 2f), (int)(Position.Y - size.Y / 2f), SlotTexture.Width + 10, SlotTexture.Height + 10);
+
+        bool hover = rect.Contains(Main.mouseX, Main.mouseY);
+
+        if (hover && !PlayerInput.IgnoreMouseInterface) {
             Main.LocalPlayer.mouseInterface = true;
+            BaseLogicForHoverSlot();
             if (ValidItemFunc == null || ValidItemFunc(Main.mouseItem)) { ItemSlot.Handle(ref Item, _context); }
         }
+        else { IsHoverSlot = false; }
 
-        spriteBatch.Draw(SlotTexture, slotCenter, null, color, 0f, SlotTexture.Size() / 2f, drawScale, SpriteEffects.None, 0);
+        spriteBatch.Draw(SlotTexture, Position, null, color, 0f, SlotTexture.Size() / 2f, drawScale, SpriteEffects.None, 0);
 
-        if (Item.type != ItemID.None) { spriteBatch.Draw(TextureAssets.Item[Item.type].Value, slotCenter, null, color, 0f, TextureAssets.Item[Item.type].Value.Size() / 2f, drawScale, SpriteEffects.None, 0f); }
-        if (Item.IsAir && ItemTypeTexture != null) { spriteBatch.Draw(ItemTypeTexture, slotCenter, null, color * 0.4f, 0f, ItemTypeTexture.Size() / 2f, drawScale, SpriteEffects.None, 0f); }
+        if (Item.type != ItemID.None) { spriteBatch.Draw(TextureAssets.Item[Item.type].Value, Position, null, color, 0f, TextureAssets.Item[Item.type].Value.Size() / 2f, drawScale, SpriteEffects.None, 0f); }
+        if (Item.IsAir && ItemTypeTexture != null) { spriteBatch.Draw(ItemTypeTexture, Position, null, color * 0.4f, 0f, ItemTypeTexture.Size() / 2f, drawScale, SpriteEffects.None, 0f); }
 
         Main.inventoryScale = oldScale;
+    }
+    void BaseLogicForHoverSlot() {
+        IsHoverSlot = true;
     }
 }

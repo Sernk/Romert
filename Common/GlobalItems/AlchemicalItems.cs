@@ -1,6 +1,4 @@
 ﻿using Romert.Common.Players;
-using Romert.Core;
-using Romert.Helpers;
 using Romert.Resources;
 using System.Collections.Generic;
 
@@ -8,11 +6,23 @@ namespace Romert.Common.GlobalItems;
 
 public class AlchemicalItems : GlobalItem {
     public HashSet<int> IsAlchemistPoisoningItems = [];
+
     public bool isFlask;
+    public bool isAlchemistMaterials;
 
     float glowAlpha = 0f;
 
     public override bool InstancePerEntity => true;
+    public override void SetDefaults(Item entity) {
+        if (isAlchemistMaterials) { entity.material = true; }
+    }
+    public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
+        foreach (TooltipLine line in tooltips) {
+            if (isAlchemistMaterials) {
+                if (line.Name == "Material") { line.Text = Loc(LocCategory[0] + "." + LocCategory[1], "Material"); }
+            }
+        }
+    }
     public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         bool active = Main.LocalPlayer.Get<AlchemistTilePlayer>().ActiveAlchemistUI;
         if (isFlask) {

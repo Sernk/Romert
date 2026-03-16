@@ -1,0 +1,11 @@
+AlchemistsFlask.DisplayName: alchemical damage
+
+Tooltips: {
+	Material: Alchemist material
+	M: S
+}
+
+Table: {
+	FlaskItem: Insert the flask
+	M: S
+}

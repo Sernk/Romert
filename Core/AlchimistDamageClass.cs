@@ -2,6 +2,7 @@
 
 public abstract class AlchemistsDamageClass : DamageClass {
     public virtual bool IsFlaskItem => false;
+    public override string LocalizationCategory => LocCategory[0];
     public sealed override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
         float attackSpeed = 0f;
         if (damageClass == Generic) { return new StatInheritanceData(1f, 0f, 0f, 0f, 0f); }

@@ -10,7 +10,7 @@ namespace Romert.Common.ResourceOverlays {
 
         public enum ResourceType { Life, Mana }
         private string GetTexturePath(ResourceType type, bool isMini) {
-            AlchemistPlayer alchemist = AlchemistPlayer.GetPlayer(Main.LocalPlayer);
+            AlchemistPlayer alchemist = Main.LocalPlayer.Get<AlchemistPlayer>();
             string folder = baseFolder;
 
             if (type == ResourceType.Life) folder += isMini ? "MiniHP" : "HP";
