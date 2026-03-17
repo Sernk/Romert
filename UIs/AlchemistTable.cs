@@ -37,7 +37,7 @@ public class AlchemistTable : UIState {
     public override void OnDeactivate() {
         Player player = Main.LocalPlayer;
         if (!isFist) { SoundEngine.PlaySound(SoundID.MenuClose, player.Center); isFist = true; }
-        if (flask.Item.type != ItemID.None) { player.QuickSpawnItem(player.GetSource_Misc(Romert.ModName + "DeactivateAlchemistTableUI"), flask.Item.type, flask.Item.stack); flask.Item.type = 0; }
+        if (flask.Item.type != ItemID.None) { player.QuickSpawnItem(player.GetSource_Misc(Romert.ModName + "DeactivateAlchemistTableUI"), flask.Item.type, flask.Item.stack); flask.Item.type = ItemID.None; }
     }
     void SettingVanillaItemSlot(float alfa, Vector2 pos) {
         BaseSetting(flask, alfa, pos);

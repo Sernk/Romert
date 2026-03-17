@@ -43,7 +43,7 @@ public class VanillaItemSlotWrapper : UIElement {
 
         if (hover && !PlayerInput.IgnoreMouseInterface) {
             Main.LocalPlayer.mouseInterface = true;
-            BaseLogicForHoverSlot();
+            IsHoverSlot = true;
             if (ValidItemFunc == null || ValidItemFunc(Main.mouseItem)) { ItemSlot.Handle(ref Item, _context); }
         }
         else { IsHoverSlot = false; }
@@ -54,8 +54,5 @@ public class VanillaItemSlotWrapper : UIElement {
         if (Item.IsAir && ItemTypeTexture != null) { spriteBatch.Draw(ItemTypeTexture, Position, null, color * 0.4f, 0f, ItemTypeTexture.Size() / 2f, drawScale, SpriteEffects.None, 0f); }
 
         Main.inventoryScale = oldScale;
-    }
-    void BaseLogicForHoverSlot() {
-        IsHoverSlot = true;
     }
 }
