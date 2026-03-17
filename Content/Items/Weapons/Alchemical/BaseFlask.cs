@@ -1,4 +1,4 @@
-﻿using Romert.Helpers;
+﻿using Romert.Common.GlobalItems;
 
 namespace Romert.Content.Items.Weapons.Alchemical;
 
@@ -20,5 +20,6 @@ public class BaseFlask : AbstractAlchemicalItem {
         Item.rare = ItemRarityID.Blue;
         Item.autoReuse = false;
         Item.IsAlchemistPoisoning();
+        Item.Get<AlchemicalItems>().AddSlot(0, 0, 0);
     }
 }

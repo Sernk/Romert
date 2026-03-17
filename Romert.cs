@@ -1,3 +1,4 @@
+using Romert.Core;
 using Terraria.UI;
 
 namespace Romert;
@@ -12,5 +13,10 @@ public class Romert : Mod {
 
     public override void Load() {
         AlchemistTableUI = new UserInterface();
+    }
+    public override void PostSetupContent() {
+        foreach (CleaningType type in GetContent<CleaningType>()) {
+            if (type is IPostSetup setup) { setup.PostSetup(this); }
+        }
     }
 }

@@ -61,6 +61,7 @@ public class AlchemistPlayer : ModPlayer {
         if (CurrentAlchemist.CurrentProgress != 0) { CurrentTime++; }
         PreAddDebuff();
         if (TimeSnake > 0) { TimeSnake--; }
+        //Main.NewText(string.Join(",", Alchemy.Manager));
     }
     void PreAddDebuff() {
         DeletePoints();

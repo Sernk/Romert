@@ -27,6 +27,7 @@ public class VanillaItemSlotWrapper : UIElement {
         Width.Set(TextureAssets.InventoryBack9.Value.Width * scale, 0f);
         Height.Set(TextureAssets.InventoryBack9.Value.Height * scale, 0f);
     }
+    public string Name => GetType().Name;
     protected override void DrawSelf(SpriteBatch spriteBatch) {
         if (Item != null) { if (IsVisible != null && !IsVisible(Item)) { return; } }
         float oldScale = Main.inventoryScale;
