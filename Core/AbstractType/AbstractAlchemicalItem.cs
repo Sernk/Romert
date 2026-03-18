@@ -8,9 +8,8 @@ public abstract class AbstractAlchemicalItem : ModItem {
         Item.consumable = IsFlackItem;
         if (IsFlackItem) {
             Item.useStyle = ItemUseStyleID.Swing;
-            //Item.ammo = ItemType<BoomFlask>(); 
         }
-        PostSetStaticDefaults();
+        PostSetDefaults();
     }
-    public virtual void PostSetStaticDefaults() { }
+    public virtual void PostSetDefaults() { }
 }

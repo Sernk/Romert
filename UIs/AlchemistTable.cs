@@ -1,8 +1,11 @@
 ﻿using Romert.Common.GlobalItems;
 using Romert.Common.Players;
 using Romert.Content.Items.Weapons.Alchemical;
+using Romert.Content.Reagents;
+using Romert.Content.Reagents.Flask;
 using Romert.Core;
 using Romert.Resources;
+using System.Collections.Generic;
 using System.Linq;
 using Terraria.Audio;
 using Terraria.GameContent;
@@ -123,27 +126,49 @@ public class AlchemistTable : UIState {
             DrawSlot(spriteBatch, slotPos, flask.Item, out string text);
             if (text != "") { DrawText(textPos, text); }
 
+            Main.NewText(string.Join(",", flask.Item.Get<AlchemicalItems>().FlaskReagents.AsEnumerable()));
+
             for (int i = 0; i < 6; i++) {
                 if (ReagentSlot[i].Item.type != ItemID.None) {
+                    foreach (AlchemyManager recipes in Alchemy.Manager) {               
+                        if (CheckRecipe(recipes, ReagentSlot)) {
+                            //flask.Item.Get<AlchemicalItems>().AddReagent(AlchemistReagent.Get<Slime>());
 
+                        }
+                    }
                 }
                 else {
                     if (ReagentSlot[i].IsHoverSlot) { DrawText(textPos, "Reagent"); }
                 }
             }
-
-            //foreach (AlchemyManager manager in Alchemy.Manager) {
-            //    foreach (IngredientData data in manager.Ingredients) {
-            //        if (leftTopSlot.Item.type != 0) {
-            //            if (leftTopSlot.Item.Get<AlchemicalItems>().Reagent == data.Ingredient) {
-            //                Main.NewText(data.Ingredient);
-            //            }
-            //        }
-            //    }
-            //}
         }
 
         if (!isFist && flask.IsHoverSlot && flask.Item.type == ItemID.None) { DrawText(textPos, "FlaskItem"); }
+    }
+    public static bool CheckRecipe(AlchemyManager recipe, VanillaItemSlotWrapper[] slots) {
+        List<IngredientData> ingredients = recipe.Ingredients;
+
+        int usedSlots = 0;
+
+        for (int i = 0; i < slots.Length; i++) {
+            Item item = slots[i].Item;
+
+            if (item.type == ItemID.None) { continue; }
+
+            bool found = false;
+
+            foreach (IngredientData ingredient in ingredients) {
+                if (item.Get<AlchemicalItems>().Reagent == ingredient.Ingredient && item.stack >= ingredient.Stack) {
+                    found = true;
+                    usedSlots++;
+                    break;
+                }
+            }
+
+            if (!found) { return false; }
+        }
+
+        return usedSlots == ingredients.Count;
     }
     void DrawSlot(SpriteBatch sprite, Vector2 pos, Item item, out string text) {
         text = "";
@@ -151,15 +176,15 @@ public class AlchemistTable : UIState {
         float textScale = 5f;
         byte frame = 0;
         for (int i = 0; i < 6;) {
-            if (item.Get<AlchemicalItems>().PotionSlot[i] == -1) {
+            if (item.Get<AlchemicalItems>().FlaskReagents[i] == AlchemistReagent.Get<Look>()) {
                 frame = 2;
                 if (Hover("TestAlchemicalPotionSlot", new(pos.X + scale - textScale, pos.Y), 2)) { text = "SlotInfo.Locked"; }
             }
-            if (item.Get<AlchemicalItems>().PotionSlot[i] == 0) {
+            if (item.Get<AlchemicalItems>().FlaskReagents[i] == AlchemistReagent.Get<NoN>()) {
                 frame = 0;
                 if (Hover("TestAlchemicalPotionSlot", new(pos.X + scale - textScale, pos.Y), 2)) { text = "SlotInfo.Empty"; }
             }
-            if (item.Get<AlchemicalItems>().PotionSlot[i] == 1) {
+            if (item.Get<AlchemicalItems>().FlaskReagents[i] != AlchemistReagent.Get<Look>() && item.Get<AlchemicalItems>().FlaskReagents[i] != AlchemistReagent.Get<NoN>()) {
                 frame = 1;
                 if (Hover("TestAlchemicalPotionSlot", new(pos.X + scale - textScale, pos.Y), 2)) { text = "SlotInfo.Сontains"; }
             }
