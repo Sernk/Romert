@@ -15,19 +15,16 @@ public class VanillaItemSlotWrapper : UIElement {
     public Vector2 Position = Vector2.Zero;
     public bool IsHoverSlot { get; private set; } = false;
 
-    readonly int _context;
-    readonly float _scale;
+    readonly float _scale = 1f;
 
-    public VanillaItemSlotWrapper(int context = ItemSlot.Context.BankItem, float scale = 1f) {
-        _context = context;
-        _scale = scale;
+    public string Name => GetType().Name;
+
+    public VanillaItemSlotWrapper() {
         Item = new Item();
         Item.SetDefaults(ItemID.None);
-
-        Width.Set(TextureAssets.InventoryBack9.Value.Width * scale, 0f);
-        Height.Set(TextureAssets.InventoryBack9.Value.Height * scale, 0f);
+        Width.Set(TextureAssets.InventoryBack9.Value.Width * _scale, 0f);
+        Height.Set(TextureAssets.InventoryBack9.Value.Height * _scale, 0f);
     }
-    public string Name => GetType().Name;
     protected override void DrawSelf(SpriteBatch spriteBatch) {
         if (Item != null) { if (IsVisible != null && !IsVisible(Item)) { return; } }
         float oldScale = Main.inventoryScale;
@@ -45,7 +42,7 @@ public class VanillaItemSlotWrapper : UIElement {
         if (hover && !PlayerInput.IgnoreMouseInterface) {
             Main.LocalPlayer.mouseInterface = true;
             IsHoverSlot = true;
-            if (ValidItemFunc == null || ValidItemFunc(Main.mouseItem)) { ItemSlot.Handle(ref Item, _context); }
+            if (ValidItemFunc == null || ValidItemFunc(Main.mouseItem)) { ItemSlot.Handle(ref Item, ItemSlot.Context.BankItem); }
         }
         else { IsHoverSlot = false; }
 

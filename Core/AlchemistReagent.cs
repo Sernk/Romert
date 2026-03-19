@@ -12,9 +12,22 @@ public abstract class AlchemistReagent : CleaningType {
     public virtual void SetStaticDefaults() {
 
     }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="reagent">Reagent for this Item</param>
+    /// <returns></returns>
     public virtual bool CanBySynergia(AlchemistReagent reagent) {
         return false;
     }
+    /// <summary>
+    /// if(reagent == AlchemistReagent.Get(Name) {
+    ///  code
+    /// }
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="item"></param>
+    /// <param name="reagent">reagents for this item</param>
     public virtual void Synergia(Player player, Item item, AlchemistReagent reagent) {
 
     }

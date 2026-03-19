@@ -1,12 +1,11 @@
 ﻿using Romert.Common.GlobalItems;
 using Romert.Common.Players;
 using Romert.Content.Items.Weapons.Alchemical;
-using Romert.Content.Reagents;
 using Romert.Content.Reagents.Flask;
 using Romert.Core;
+using Romert.Dataset;
 using Romert.Resources;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.UI;
@@ -25,6 +24,8 @@ public class AlchemistTable : UIState {
     VanillaItemSlotWrapper rightCenterSlot;
     VanillaItemSlotWrapper rightBotSlot;
 
+    AnimationDate button;
+
     public VanillaItemSlotWrapper[] ReagentSlot { get; private set; } = new VanillaItemSlotWrapper[6];
 
     bool isFist = false;
@@ -33,11 +34,10 @@ public class AlchemistTable : UIState {
 
     void RegisterSlot(ref VanillaItemSlotWrapper slot) {
         slot = new() {
-            ValidItemFunc = item => item.IsAir || !item.IsAir && item.type == ItemID.Gel,
+            ValidItemFunc = item => item.IsAir || !item.IsAir && item.Get<AlchemicalItems>().isReagent,
             IsVisible = item => flask.Item.type != ItemID.None
         };
         Append(slot);
-        ReagentSlot = [leftTopSlot, leftCenterSlot, leftBotSlot, rightTopSlot, rightCenterSlot, rightBotSlot];
     }
     public override void OnInitialize() {
         flask = new() { ValidItemFunc = item => item.IsAir || !item.IsAir && item.Get<AlchemicalItems>().isFlask };
@@ -50,6 +50,8 @@ public class AlchemistTable : UIState {
         RegisterSlot(ref rightTopSlot);
         RegisterSlot(ref rightCenterSlot);
         RegisterSlot(ref rightBotSlot);
+
+        ReagentSlot = [leftTopSlot, leftCenterSlot, leftBotSlot, rightTopSlot, rightCenterSlot, rightBotSlot];
     }
     public override void Update(GameTime gameTime) {
         Player player = Main.LocalPlayer;
@@ -62,6 +64,9 @@ public class AlchemistTable : UIState {
         Player player = Main.LocalPlayer;
         if (!isFist) { SoundEngine.PlaySound(SoundID.MenuClose, player.Center); isFist = true; }
         if (flask.Item.type != ItemID.None) { player.QuickSpawnItem(player.GetSource_Misc(Romert.ModName + "DeactivateAlchemistTableUI"), flask.Item.type, flask.Item.stack); flask.Item.type = ItemID.None; }
+        for (int i = 0; i < ReagentSlot.Length; i++) {
+            if (ReagentSlot[i].Item.type != ItemID.None) { player.QuickSpawnItem(player.GetSource_Misc(Romert.ModName + "DeactivateAlchemistTableUI"), ReagentSlot[i].Item.type, ReagentSlot[i].Item.stack); ReagentSlot[i].Item.type = ItemID.None; }
+        }
     }
     void SettingVanillaItemSlot(float alfa, Vector2 pos) {
         BaseSetting(flask, alfa, pos);
@@ -98,10 +103,10 @@ public class AlchemistTable : UIState {
         Rectangle rect = new((int)(pos.X - size.X / 2f), (int)(pos.Y - size.Y / 2f), texture.Width, texture.Height);
         return rect.Contains(Main.mouseX, Main.mouseY);
     }
-    static bool Hover(string name, Vector2 pos, byte frameX = 1, byte frameY = 1, float drawScale = 1f) {
+    static bool Hover(string name, Vector2 pos2, byte frameX = 1, byte frameY = 1, float drawScale = 1f) {
         Texture2D texture = GetUI(ShortCat[0] + name).GetAsset().Value;
         Vector2 size = texture.Size() * drawScale;
-        Rectangle rect = new((int)(pos.X - size.X / 2f), (int)(pos.Y - size.Y / 2f), texture.Width / frameX, texture.Height / frameY);
+        Rectangle rect = new((int)(pos2.X - size.X / 2f), (int)(pos2.Y - size.Y / 2f), texture.Width / frameX, texture.Height / frameY);
         return rect.Contains(Main.mouseX, Main.mouseY);
     }
     protected override void DrawSelf(SpriteBatch spriteBatch) {
@@ -117,6 +122,7 @@ public class AlchemistTable : UIState {
         Vector2 bassTextPos = new(basePos.X - 140, basePos.Y - 320);
         Vector2 textPos = bassTextPos + GetUI(ShortCat[0] + "TestAlchemicalTableTextPanel").GetAsset().Value.Size() / 2f;
         Vector2 slotPos = new(basePos.X - 68, basePos.Y + 300);
+        Vector2 buttonPos = new(basePos.X, basePos.Y - basePos.Y / 2 + 490);
 
         Draw(spriteBatch, "TestAlchemicalTableUI", basePos);
         Draw(spriteBatch, "TestAlchemicalTableTextPanel", new(basePos.X, basePos.Y - 300));
@@ -125,13 +131,11 @@ public class AlchemistTable : UIState {
         if (flask.Item.type != ItemID.None) { 
             DrawSlot(spriteBatch, slotPos, flask.Item, out string text);
             if (text != "") { DrawText(textPos, text); }
-
-            Main.NewText(string.Join(",", flask.Item.Get<AlchemicalItems>().FlaskReagents.AsEnumerable()));
-
             for (int i = 0; i < 6; i++) {
                 if (ReagentSlot[i].Item.type != ItemID.None) {
                     foreach (AlchemyManager recipes in Alchemy.Manager) {               
                         if (CheckRecipe(recipes, ReagentSlot)) {
+                            DrawButton(spriteBatch, buttonPos);
                             //flask.Item.Get<AlchemicalItems>().AddReagent(AlchemistReagent.Get<Slime>());
 
                         }
@@ -192,5 +196,15 @@ public class AlchemistTable : UIState {
             scale += 46;
             i++;
         }
+    }
+    void DrawButton(SpriteBatch sprite, Vector2 pos) {
+        button.Init(1, 5);
+        button.RowCount = 1;
+        button.Update();
+        if (Hover("TestAlchemicalPotionSlotFrame1", pos: pos)) {
+            if (Main.mouseLeft && Main.mouseRightRelease) { button.StartAnimation = true; }         
+        }
+        Texture2D buttonTexture = GetUI(ShortCat[0] + "TestAlchemicalTableButton").GetAsset().Value;
+        //sprite.Draw(buttonTexture, pos, button.GetSource(buttonTexture), Color.White, 0f, button.GetSource(buttonTexture).Size() / 2f, 1f, button.Effects, 0f);
     }
 }

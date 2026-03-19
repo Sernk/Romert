@@ -13,7 +13,7 @@ public class AlchemicalItems : GlobalItem {
     public HashSet<int> IsAlchemistPoisoningItems = [];
 
     public AlchemistReagent Reagent;
-    public AlchemistReagent[] FlaskReagents { get; set; } = new AlchemistReagent[6];
+    public AlchemistReagent[] FlaskReagents { get; private  set; } = new AlchemistReagent[6];
 
     List<string> ReagentName { get; set; } = [];
 
@@ -23,7 +23,7 @@ public class AlchemicalItems : GlobalItem {
 
     float glowAlpha = 0f;
 
-    public int[] FlaskSlot { get; private set; } = new int[6]; // -1 is close, 0 is empty, 1 is slot has value. -2..., 2... is Exception 
+    public int[] FlaskSlot { get; private set; } = new int[6]; // -1 is look slot, 0 is empty slot, 1 is has value is slot. [-∞; -2] U [2; ∞] is Exception 
 
     public override bool InstancePerEntity => true;
     public sealed override void SaveData(Item item, TagCompound tag) {
