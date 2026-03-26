@@ -15,3 +15,8 @@ Table: {
 		Сontains: Contains a reagent
 	}
 }
+
+Book: {
+	Name: Book of the Alchemist
+	Info: Holds the secrets of alchemy
+}

@@ -1,11 +1,13 @@
 ﻿using Romert.Common.GlobalItems;
 using Romert.Common.Players;
 using Romert.Content.Items.Weapons.Alchemical;
+using Romert.Content.Reagents;
 using Romert.Content.Reagents.Flask;
 using Romert.Core;
 using Romert.Dataset;
 using Romert.Resources;
 using System.Collections.Generic;
+using System.Linq;
 using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.UI;
@@ -133,11 +135,11 @@ public class AlchemistTable : UIState {
             if (text != "") { DrawText(textPos, text); }
             for (int i = 0; i < 6; i++) {
                 if (ReagentSlot[i].Item.type != ItemID.None) {
-                    foreach (AlchemyManager recipes in Alchemy.Manager) {               
+                    foreach (AlchemyManager recipes in Alchemy.Manager) {
+                        Main.NewText(string.Join(",", flask.Item.Get<AlchemicalItems>().FlaskReagents.AsEnumerable()));
                         if (CheckRecipe(recipes, ReagentSlot)) {
                             DrawButton(spriteBatch, buttonPos);
-                            //flask.Item.Get<AlchemicalItems>().AddReagent(AlchemistReagent.Get<Slime>());
-
+                            
                         }
                     }
                 }
@@ -180,15 +182,15 @@ public class AlchemistTable : UIState {
         float textScale = 5f;
         byte frame = 0;
         for (int i = 0; i < 6;) {
-            if (item.Get<AlchemicalItems>().FlaskReagents[i] == AlchemistReagent.Get<Look>()) {
+            if (item.Get<AlchemicalItems>().FlaskReagents[i] == GetReagent<Look>()) {
                 frame = 2;
                 if (Hover("TestAlchemicalPotionSlot", new(pos.X + scale - textScale, pos.Y), 2)) { text = "SlotInfo.Locked"; }
             }
-            if (item.Get<AlchemicalItems>().FlaskReagents[i] == AlchemistReagent.Get<NoN>()) {
+            if (item.Get<AlchemicalItems>().FlaskReagents[i] == GetReagent<NoN>()) {
                 frame = 0;
                 if (Hover("TestAlchemicalPotionSlot", new(pos.X + scale - textScale, pos.Y), 2)) { text = "SlotInfo.Empty"; }
             }
-            if (item.Get<AlchemicalItems>().FlaskReagents[i] != AlchemistReagent.Get<Look>() && item.Get<AlchemicalItems>().FlaskReagents[i] != AlchemistReagent.Get<NoN>()) {
+            if (item.Get<AlchemicalItems>().FlaskReagents[i] != GetReagent<Look>() && item.Get<AlchemicalItems>().FlaskReagents[i] != GetReagent<NoN>()) {
                 frame = 1;
                 if (Hover("TestAlchemicalPotionSlot", new(pos.X + scale - textScale, pos.Y), 2)) { text = "SlotInfo.Сontains"; }
             }
@@ -202,7 +204,7 @@ public class AlchemistTable : UIState {
         button.RowCount = 1;
         button.Update();
         if (Hover("TestAlchemicalPotionSlotFrame1", pos: pos)) {
-            if (Main.mouseLeft && Main.mouseRightRelease) { button.StartAnimation = true; }         
+            if (Main.mouseLeft && Main.mouseRightRelease) { flask.Item.Get<AlchemicalItems>().AddReagent(GetReagent<Poison>()); }         
         }
         Texture2D buttonTexture = GetUI(ShortCat[0] + "TestAlchemicalTableButton").GetAsset().Value;
         //sprite.Draw(buttonTexture, pos, button.GetSource(buttonTexture), Color.White, 0f, button.GetSource(buttonTexture).Size() / 2f, 1f, button.Effects, 0f);

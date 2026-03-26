@@ -1,5 +1,4 @@
-﻿using Romert.Common.PlayerLayers;
-using Terraria.Localization;
+﻿using Terraria.Localization;
 
 namespace Romert.RomertUtil;
 

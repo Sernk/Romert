@@ -10,6 +10,7 @@ public class Romert : Mod {
     public const string ModName = "Romert";
 
     public UserInterface AlchemistTableUI { get; private set; }
+    public UserInterface AlchemistBookUI { get; private set; }
 
     public override void Load() {
         AlchemistTableUI = new UserInterface();

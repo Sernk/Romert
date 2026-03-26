@@ -13,9 +13,7 @@ public class AlchemicalItems : GlobalItem {
     public HashSet<int> IsAlchemistPoisoningItems = [];
 
     public AlchemistReagent Reagent;
-    public AlchemistReagent[] FlaskReagents { get; private  set; } = new AlchemistReagent[6];
-
-    List<string> ReagentName { get; set; } = [];
+    public AlchemistReagent[] FlaskReagents { get; private set; } = new AlchemistReagent[6];
 
     public bool isFlask;
     public bool isReagent;
@@ -28,11 +26,12 @@ public class AlchemicalItems : GlobalItem {
     public override bool InstancePerEntity => true;
     public sealed override void SaveData(Item item, TagCompound tag) {
         if (isFlask) {
-            for (int i = 0; i < FlaskReagents.Length; i++) { 
+            List<string> ReagentName = [];
+            for (int i = 0; i < FlaskReagents.Length; i++) {
                 if (ReagentName.Count != 6) { ReagentName.Add(FlaskReagents[i].Name); }
             }
             for (int i = FlaskReagents.Length - 1; i >= 0; i--) {
-                if (FlaskReagents[i] != AlchemistReagent.Get<Look>() && FlaskReagents[i] != AlchemistReagent.Get<NoN>()) {
+                if (FlaskReagents[i] != GetReagent<Look>() && FlaskReagents[i] != GetReagent<NoN>()) {
                     if (ReagentName[i] == "NoN") {
                         ReagentName.RemoveAt(ReagentName.IndexOf("NoN"));
                         ReagentName.Insert(i, FlaskReagents[i].Name);
@@ -44,10 +43,10 @@ public class AlchemicalItems : GlobalItem {
     }
     public sealed override void LoadData(Item item, TagCompound tag) {
         if (isFlask) {
-            ReagentName = tag.Get<List<string>>(Romert.ModName + "ActiveReagent");
+            List<string> ReagentName = tag.Get<List<string>>(Romert.ModName + "ActiveReagent");
             if (ReagentName.Count != 0) {
                 for (int i = 0; i < FlaskReagents.Length; i++) {
-                    if (FlaskReagents[i] != null) { FlaskReagents[i] = AlchemistReagent.Get(ReagentName[i]); }
+                    FlaskReagents[i] = GetReagent(ReagentName[i]);
                 }
             }
         }
@@ -55,8 +54,15 @@ public class AlchemicalItems : GlobalItem {
     public override void SetDefaults(Item entity) {
         if (isAlchemistMaterials) { entity.material = true; }
         if (AlchemistReagentManager.PostLoad) {
-            if (entity.type == ItemID.Gel) { Reagent = AlchemistReagent.Get<Slime>(); }
-            if (!isReagent || isFlask) { Reagent??= AlchemistReagent.Get<NoNInItem>(); }     
+            for (int i = 0; i < RegisterReagent.AlchemistReagents.Count; i++) {
+                for (int k = 0; k < RegisterReagent.AlchemistReagents[i].ItemID.Count; k++) {
+                    if (entity.type == RegisterReagent.AlchemistReagents[i].ItemID[k].type) {
+                        Reagent = RegisterReagent.AlchemistReagents[i].Reagent;
+                    }
+                }
+            }
+            if (!isReagent || isFlask) { Reagent??= GetReagent<NoNInItem>(); }
+            if (Reagent != GetReagent<NoNInItem>()) { isReagent = true; }
             if (isFlask) { SettingReagentInItem(); }
         }
     }
@@ -80,23 +86,35 @@ public class AlchemicalItems : GlobalItem {
     public override void HoldItem(Item item, Player player) {
         AlchemistPlayer alchemist = player.Get<AlchemistPlayer>();
         if (IsAlchemistPoisoningItems.Contains(item.type)) { alchemist.AlchemistDatas[0].IsActive = true; }
+        if (FlaskReagents != null) {
+            foreach (AlchemistReagent reagent in AlchemistReagentManager.ReagentsData) {
+                for (int i = 0; i < FlaskReagents.Length; i++) {
+                    if (reagent.CanBySynergia(FlaskReagents[i])) {
+                        reagent.Synergy = true;
+                        reagent.Synergia(player, item, FlaskReagents[i]);
+                    }
+                }
+            }
+        }
+    }
+    public override void UpdateInventory(Item item, Player player) {
+        for (int i = 0; i < RegisterReagent.AlchemistReagents.Count; i++) {
+            for (int k = 0; k < RegisterReagent.AlchemistReagents[i].ItemID.Count; k++) {
+                if (item.type == RegisterReagent.AlchemistReagents[i].ItemID[k].type) {
+                    if (item.stack >= RegisterReagent.AlchemistReagents[i].ItemID[k].stack) {
+                        if (!player.Get<AlchemistBookPlayer>().SaveType.Exists(x => x == RegisterReagent.AlchemistReagents[i].ItemID[k].Name)) {
+                            player.Get<AlchemistBookPlayer>().SaveType.Add(RegisterReagent.AlchemistReagents[i].ItemID[k].Name);
+                        }
+                    }
+                }
+            }
+        }
     }
     public override bool CanUseItem(Item item, Player player) {
         bool orig = base.CanUseItem(item, player);
         AlchemistPlayer alchemist = player.Get<AlchemistPlayer>();
         if (IsAlchemistPoisoningItems.Contains(item.type)) { alchemist.AddPoints(0, orig); }
         return orig;
-    }
-    public override void UpdateInventory(Item item, Player player) {
-        if (FlaskReagents != null) {
-            foreach (AlchemistReagent reagent in AlchemistReagentManager.ReagentsData) {
-                for (int i = 0; i < FlaskReagents.Length; i++) { 
-                    if (reagent.CanBySynergia(FlaskReagents[i])) {
-                        reagent.Synergia(player, item, FlaskReagents[i]);
-                    }
-                }
-            }
-        }
     }
     public override void UpdateAccessory(Item item, Player player, bool hideVisual) {
     }
@@ -108,13 +126,13 @@ public class AlchemicalItems : GlobalItem {
     }
     public void SettingReagentInItem() {
         for (int i = 0; i < FlaskSlot.Length; i++) {
-            if (FlaskSlot[i] == -1) { FlaskReagents[i] = AlchemistReagent.Get<Look>(); } 
-            if (FlaskSlot[i] == 0) { FlaskReagents[i] = AlchemistReagent.Get<NoN>(); } 
+            if (FlaskSlot[i] == -1) { FlaskReagents[i] = GetReagent<Look>(); } 
+            if (FlaskSlot[i] == 0) { FlaskReagents[i] = GetReagent<NoN>(); } 
         }
     }
     public void AddReagent(AlchemistReagent reagent) {
         for (int i = FlaskReagents.Length - 1; i >= 0; i--) {
-            if (FlaskReagents[i] == AlchemistReagent.Get<NoN>()) { FlaskReagents[i] = reagent; }
+            if (FlaskReagents[i] == GetReagent<NoN>()) { FlaskReagents[i] = reagent; }
         }
     }
 }

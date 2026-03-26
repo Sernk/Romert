@@ -8,6 +8,11 @@ Items: {
 		DisplayName: Base Flask
 		Tooltip: ""
 	}
+
+	AlchemistBook: {
+		DisplayName: Alchemist Book
+		Tooltip: <right>, to open
+	}
 }
 
 Tiles.AlchemicalShelf.MapEntry: Alchemical Shelf

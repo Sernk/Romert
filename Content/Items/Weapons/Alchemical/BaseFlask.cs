@@ -4,7 +4,7 @@ namespace Romert.Content.Items.Weapons.Alchemical;
 
 // TODO: Projectile and rare;
 public class BaseFlask : AbstractAlchemicalItem {
-    public override bool IsFlackItem => true;
+    public override bool IsFlackItem => false;
     public override void PostSetDefaults() {
         Item.damage = 9;
         Item.width = 26;

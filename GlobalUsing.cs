@@ -5,6 +5,7 @@ global using Romert.Helpers;
 global using Terraria;
 global using Terraria.ID;
 global using Terraria.ModLoader;
+global using static Romert.Core.RomertContent;
 global using static Romert.Resources.Textures;
 global using static Romert.RomertUtil.AddLoc;
 global using static Terraria.ModLoader.ModContent;

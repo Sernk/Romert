@@ -1,0 +1,24 @@
+Look: {
+	Name: Mods.Romert.Alchemist.Reagents.Look.Name
+	Descriptions: Mods.Romert.Alchemist.Reagents.Look.Descriptions
+}
+
+NoN: {
+	Name: Mods.Romert.Alchemist.Reagents.NoN.Name
+	Descriptions: Mods.Romert.Alchemist.Reagents.NoN.Descriptions
+}
+
+NoNInItem: {
+	Name: Mods.Romert.Alchemist.Reagents.NoNInItem.Name
+	Descriptions: Mods.Romert.Alchemist.Reagents.NoNInItem.Descriptions
+}
+
+Poison: {
+	Name: Mods.Romert.Alchemist.Reagents.Poison.Name
+	Descriptions: Mods.Romert.Alchemist.Reagents.Poison.Descriptions
+}
+
+Slime: {
+	Name: Mods.Romert.Alchemist.Reagents.Slime.Name
+	Descriptions: Mods.Romert.Alchemist.Reagents.Slime.Descriptions
+}
