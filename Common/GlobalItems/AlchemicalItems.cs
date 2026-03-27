@@ -72,7 +72,7 @@ public class AlchemicalItems : GlobalItem {
                 if (line.Name == "Material") { line.Text = Loc(LocCategory[0] + "." + LocCategory[1], "Material"); }
             }
         }
-        Main.NewText(Reagent);
+        //Main.NewText(Reagent);
     }
     public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         bool active = Main.LocalPlayer.Get<AlchemistTilePlayer>().ActiveAlchemistUI;
@@ -102,8 +102,8 @@ public class AlchemicalItems : GlobalItem {
             for (int k = 0; k < RegisterReagent.AlchemistReagents[i].ItemID.Count; k++) {
                 if (item.type == RegisterReagent.AlchemistReagents[i].ItemID[k].type) {
                     if (item.stack >= RegisterReagent.AlchemistReagents[i].ItemID[k].stack) {
-                        if (!player.Get<AlchemistBookPlayer>().SaveType.Exists(x => x == RegisterReagent.AlchemistReagents[i].ItemID[k].Name)) {
-                            player.Get<AlchemistBookPlayer>().SaveType.Add(RegisterReagent.AlchemistReagents[i].ItemID[k].Name);
+                        if (!player.Get<AlchemistBookPlayer>().SaveType.Exists(x => x == RegisterReagent.AlchemistReagents[i].Reagent.Name)) {
+                            player.Get<AlchemistBookPlayer>().SaveType.Add(RegisterReagent.AlchemistReagents[i].Reagent.Name);
                         }
                     }
                 }
@@ -118,10 +118,10 @@ public class AlchemicalItems : GlobalItem {
     }
     public override void UpdateAccessory(Item item, Player player, bool hideVisual) {
     }
-    public void AddSlot(int index0 = -1, int index1 = -1, int index2 = -1, int index3 = -1, int index4 = -1, int index5 = -1) {
+    public void AddSlot(string name, int index0 = -1, int index1 = -1, int index2 = -1, int index3 = -1, int index4 = -1, int index5 = -1) {
         FlaskSlot = [index0, index1, index2, index3, index4, index5];
         for (int i = 0; i < FlaskSlot.Length; i++) {
-            if (FlaskSlot[i] != 0 && FlaskSlot[i] != -1 && FlaskSlot[i] != 1) { throw new UnknownNumber(FlaskSlot[i], i); }
+            if (FlaskSlot[i] != 0 && FlaskSlot[i] != -1 && FlaskSlot[i] != 1) { throw new UnknownNumber(FlaskSlot[i], i, name); }
         }
     }
     public void SettingReagentInItem() {

@@ -13,7 +13,8 @@ public class Romert : Mod {
     public UserInterface AlchemistBookUI { get; private set; }
 
     public override void Load() {
-        AlchemistTableUI = new UserInterface();
+        AlchemistTableUI = new();
+        AlchemistBookUI = new();
     }
     public override void PostSetupContent() {
         foreach (CleaningType type in GetContent<CleaningType>()) {

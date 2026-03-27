@@ -2,11 +2,15 @@
 using Romert.Resources;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Terraria.Audio;
 using Terraria.GameContent;
+using Terraria.UI;
 
 namespace Romert.Content.Items.Other;
 
 public class AlchemistBook : ModItem {
+    UIState ui;
+
     public override void SetDefaults() {
         Item.width = 22;
         Item.height = 22;
@@ -19,9 +23,18 @@ public class AlchemistBook : ModItem {
             tooltips.Insert(1, new(Mod, "Info", Loc(LocCategory[0] + ".Book", "Info")));
         }
     }
-    public override bool CanRightClick() {
-        Item.stack = 1;
-        return true;
+    public override bool CanRightClick() => true;
+    public override void RightClick(Player player) {
+        if (!player.Get<AlchemistBookPlayer>().ActiveUI) {
+            if (ui is not null) { ui = null; }
+            if (ui == null) {
+                ui = new UIs.AlchemistBook();
+                GetInstance<Romert>().AlchemistBookUI.SetState(ui);
+                SoundEngine.PlaySound(SoundID.MenuOpen, player.Center);
+                Main.playerInventory = true;
+            }
+        }
+        Item.stack++;
     }
     public override bool PreDrawTooltip(ReadOnlyCollection<TooltipLine> lines, ref int x, ref int y) {
         if (Main.LocalPlayer.Get<RomertPlayer>().Class == 3) {

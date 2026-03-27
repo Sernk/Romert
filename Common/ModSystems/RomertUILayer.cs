@@ -9,9 +9,10 @@ public class RomertUILayer : ModSystem {
     public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
         int inventoryIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Inventory"));
         layers.AddLayer(inventoryIndex, Romert.ModName + " Alchemist Table UI", () => { mod.AlchemistTableUI.Draw(Main.spriteBatch, new GameTime()); return true; });
-        //layers.AddLayer(inventoryIndex, Romert.ModName + " Alchemist Book UI", () => { mod.AlchemistBookUI.Draw(Main.spriteBatch, new GameTime()); return true; });
+        layers.AddLayer(inventoryIndex + 1, Romert.ModName + " Alchemist Book UI", () => { mod.AlchemistBookUI.Draw(Main.spriteBatch, new GameTime()); return true; });
     }
     public override void UpdateUI(GameTime gameTime) {
         mod.AlchemistTableUI?.Update(gameTime);
+        mod.AlchemistBookUI?.Update(gameTime);
     }
 }

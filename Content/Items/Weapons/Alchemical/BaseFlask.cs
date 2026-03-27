@@ -20,6 +20,6 @@ public class BaseFlask : AbstractAlchemicalItem {
         Item.rare = ItemRarityID.Blue;
         Item.autoReuse = false;
         Item.IsAlchemistPoisoning();
-        Item.Get<AlchemicalItems>().AddSlot(0, 0, 0);
+        Item.Get<AlchemicalItems>().AddSlot(Name, 0, 0, 0);
     }
 }

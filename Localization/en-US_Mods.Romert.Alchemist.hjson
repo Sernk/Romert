@@ -19,4 +19,7 @@ Table: {
 Book: {
 	Name: Book of the Alchemist
 	Info: Holds the secrets of alchemy
+	Search: Search reagent
+	HoverSlot: Right Click, to see more info
+	Info1: Explore the world to make new entries
 }

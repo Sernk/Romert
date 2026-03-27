@@ -14,11 +14,11 @@ NoNInItem: {
 }
 
 Poison: {
-	Name: Mods.Romert.Alchemist.Reagents.Poison.Name
-	Descriptions: Mods.Romert.Alchemist.Reagents.Poison.Descriptions
+	Name: Poison
+	Descriptions: Poison Descriptions
 }
 
 Slime: {
-	Name: Mods.Romert.Alchemist.Reagents.Slime.Name
-	Descriptions: Mods.Romert.Alchemist.Reagents.Slime.Descriptions
+	Name: Slime
+	Descriptions: Slime Descriptions
 }
