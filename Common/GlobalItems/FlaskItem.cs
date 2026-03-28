@@ -45,11 +45,12 @@ public class FlaskItem : GlobalItem {
             if (Main.rand.NextBool(30)) { FlaskData.Clear(); }
         }
         else { 
-            if (Main.HoverItem.netID > 0) {
-                if (!Main.HoverItem.Get<AlchemicalItems>().isFlask) {
-                    if (Main.rand.NextBool(30)) { FlaskData.Clear(); }
-                }
-            }
+            // List<int> Flask
+            //if (Main.HoverItem.netID > 0) {
+            //    //if (!Main.HoverItem.Get<AlchemicalItems>().isFlask) {
+            //    //    if (Main.rand.NextBool(30)) { FlaskData.Clear(); }
+            //    //}
+            //}
         }
     }
     public override void ModifyWeaponDamage(Item item, Player player, ref StatModifier damage) {

@@ -59,10 +59,16 @@ public class AlchemistBook : UIState {
         color = color is null ? Color.White : color;
         spriteBatch.Draw(texture, pos, null, (Color)(color * alpha), 0f, texture.Size() / 2, 1, SpriteEffects.None, 1f);
     }
-    void DrawText(SpriteBatch spriteBatch, string text, Vector2 pos) => Utils.DrawBorderStringFourWay(spriteBatch, FontAssets.MouseText.Value, text, pos.X, pos.Y, Color.White * alpha, Color.Black * alpha, Vector2.Zero, 1f);
-    static Vector2 DrawText(Vector2 pos, string name, Color? color = null) {
+    void DrawText(SpriteBatch spriteBatch, string text, Vector2 pos) {
+        if (!Main.LocalPlayer.Get<AlchemistBookPlayer>().ActiveUI) { return; } 
+        Utils.DrawBorderStringFourWay(spriteBatch, FontAssets.MouseText.Value, text, pos.X, pos.Y, Color.White * alpha, Color.Black * alpha, Vector2.Zero, 1f); 
+    }
+    static Vector2 DrawText(Vector2 pos, string name, Color? color = null, float? alpha = null) {
+        alpha = alpha is null ? 1f : alpha;
+        color = color is null ? Color.White : color;
+        if (!Main.LocalPlayer.Get<AlchemistBookPlayer>().ActiveUI) { return Vector2.Zero; }
         Vector2 stringSize = FontAssets.MouseText.Value.MeasureString(name);
-        return ChatManager.DrawColorCodedStringWithShadow(Main.spriteBatch, FontAssets.MouseText.Value, name, pos, color ?? new(Main.mouseTextColor, Main.mouseTextColor, Main.mouseTextColor, 255), 0f, stringSize / 2f, Vector2.One);
+        return ChatManager.DrawColorCodedStringWithShadow(Main.spriteBatch, FontAssets.MouseText.Value, name, pos, (Color)(color * alpha), 0f, stringSize / 2f, Vector2.One);
     }
     static bool Hover(string name, Vector2 pos, float drawScale = 1f) {
         Texture2D texture = GetUI(ShortCat[0] + "Book/" + name).GetAsset().Value;
@@ -89,12 +95,15 @@ public class AlchemistBook : UIState {
         alpha = MathHelper.Lerp(alpha, target, 0.1f);
 
         Vector2 basePos = new(Main.screenWidth / 2, Main.screenHeight / 2);
-        Vector2 searchPos = new(basePos.X - 235, basePos.Y - 260);
-        Vector2 elementPos = new(searchPos.X, searchPos.Y);
+        Vector2 paragraphPos = new Vector2(basePos.X - 1175, basePos.Y - 900) + GetUI(ShortCat[0] + "Book/" + "AdventurersBookPageEmpty").GetAsset().Value.Size() / 2f;
+        Vector2 searchPos = new(basePos.X - 235, basePos.Y - 210);
+        Vector2 elementPos = new(searchPos.X - 188, searchPos.Y + 100);
 
         Draw(spriteBatch, "AdventurersBookPageEmpty", basePos);
+        DrawParagraph(spriteBatch, paragraphPos, "Search", alpha: alpha);
+        DrawParagraph(spriteBatch, new (paragraphPos.X, paragraphPos.Y + 100), "Reagents", alpha: alpha);
         DrawSearch(spriteBatch, searchPos);
-        DrawElement(spriteBatch, new(elementPos.X - 188, elementPos.Y + 70));
+        DrawElement(spriteBatch, elementPos);
 
         buttonHoverPrev.Clear();
         foreach (var kv in buttonHoverNow) {
@@ -132,8 +141,8 @@ public class AlchemistBook : UIState {
     void DrawElement(SpriteBatch sb, Vector2 pos) {
         float scale = 0;
         AlchemistBookPlayer player = Main.LocalPlayer.Get<AlchemistBookPlayer>();
-        if (player.ActiveUI) {
-            Vector2 textPos = new Vector2(pos.X + 180, pos.Y - 388) + GetUI(ShortCat[0] + "Book/" + "AdventurersBookPageEmpty").GetAsset().Value.Size() / 2f;
+        Vector2 textPos = new Vector2(pos.X + 180, pos.Y - 468) + GetUI(ShortCat[0] + "Book/" + "AdventurersBookPageEmpty").GetAsset().Value.Size() / 2f;
+        if (!activeInfoForReagent) {
             DrawText(textPos, Loc("Info1"));
         }
         if (player.SaveType.Count != 0) {
@@ -161,13 +170,11 @@ public class AlchemistBook : UIState {
             if (AlchemistReagentManager.ReagentsData[i].Name == player.SaveType[k]) {
                 Draw(sb, "NameSlot", new(pos.X + 210, pos.Y + scale));
                 Draw(sb, "IconSlot", new(pos.X  + 7, pos.Y + scale));
+
                 buttonHoverNow[AlchemistReagentManager.ReagentsData[i].Name] = Hover("FullSlot", new(pos.X + 188, pos.Y + scale));
                 bool wasHover = buttonHoverPrev.TryGetValue(AlchemistReagentManager.ReagentsData[i].Name, out var v) && v;
-                Vector2 textPos = new Vector2(pos.X + 10, pos.Y - 18 + scale) + GetUI(ShortCat[0] + "Book/" + "NameSlot").GetAsset().Value.Size() / 2f;
 
-                if (Hover("FullSlot", new(pos.X + 188, pos.Y + scale)) && !wasHover) {
-                    SoundEngine.PlaySound(SoundID.MenuTick, player.Player.Center);
-                }
+                if (Hover("FullSlot", new(pos.X + 188, pos.Y + scale)) && !wasHover) { SoundEngine.PlaySound(SoundID.MenuTick, player.Player.Center); }
                 if (Hover("FullSlot", new(pos.X + 188, pos.Y + scale))) {
                     Main.instance.MouseText(Loc("HoverSlot"));
                     Draw(sb, "FullSlot_Glow", new(pos.X + 188, pos.Y + scale), color: Color.Gold);
@@ -189,26 +196,29 @@ public class AlchemistBook : UIState {
                         activeInfoForReagentNum = i;
                     }
                 }
-                if (alpha2 > 0.01f) {
-                    Page2(sb, new(pos.X + 654, pos.Y + 60), AlchemistReagentManager.ReagentsData[activeInfoForReagentNum], alpha2);
-                }
-                if (player.ActiveUI) { DrawText(textPos, AlchemistReagentManager.ReagentsData[i].LocalizationName); }
+                if (alpha2 > 0.01f) { Page2(sb, new(pos.X + 654, pos.Y + 6), AlchemistReagentManager.ReagentsData[activeInfoForReagentNum], alpha2); }
 
+                Vector2 textPos = new Vector2(pos.X + 10, pos.Y - 18 + scale) + GetUI(ShortCat[0] + "Book/" + "NameSlot").GetAsset().Value.Size() / 2f;
+                DrawText(textPos, AlchemistReagentManager.ReagentsData[i].LocalizationName);
                 Draw(sb, texture, new(pos.X + 7, pos.Y + scale));
                 scale += 60;
             }
         }
     }
     void Page2(SpriteBatch sb, Vector2 pos, AlchemistReagent reagent, float alpha) {
-        Draw(sb, "RecipeBg", pos, alpha: alpha);
+        DrawParagraph(sb, new(pos.X - 475, pos.Y - 475), "Recipe", alpha: alpha);
+        DrawParagraph(sb, new(pos.X - 475, pos.Y - 230), "Descriptions", alpha: alpha);
 
-        Draw(sb, "IconSlot", pos, alpha: alpha);
-        Draw(sb, texture: reagent.TexturePatch.GetAsset().Value, pos, alpha: alpha);
-        if (Hover(texture: reagent.TexturePatch.GetAsset().Value, pos)) {
+        Vector2 posElement = new(pos.X, pos.Y - 38);
+        Draw(sb, "RecipeBg", posElement, alpha: alpha);
+
+        Draw(sb, "IconSlot", posElement, alpha: alpha);
+        Draw(sb, texture: reagent.TexturePatch.GetAsset().Value, posElement, alpha: alpha);
+        if (Hover(texture: reagent.TexturePatch.GetAsset().Value, posElement)) {
             Main.instance.MouseText(reagent.LocalizationName);
         }
 
-        Vector2[] points = [new(pos.X - 88, pos.Y - 55), new(pos.X + 88, pos.Y - 55), new(pos.X - 88, pos.Y), new(pos.X + 88, pos.Y), new(pos.X - 88, pos.Y + 55), new(pos.X + 88, pos.Y + 55)];
+        Vector2[] points = [new(posElement.X - 88, posElement.Y - 55), new(posElement.X + 88, posElement.Y - 55), new(posElement.X - 88, posElement.Y), new(posElement.X + 88, posElement.Y), new(posElement.X - 88, posElement.Y + 55), new(posElement.X + 88, posElement.Y + 55)];
         int frame = (int)(Main.GlobalTimeWrappedHourly * 0.50f) % 6;
 
         for (int i = 0; i < RegisterReagent.AlchemistReagents.Count; i++) {
@@ -218,12 +228,33 @@ public class AlchemistBook : UIState {
                         Draw(sb, "IconSlot", points[k], alpha: alpha);
                         Draw(sb, texture: TextureAssets.Item[RegisterReagent.AlchemistReagents[i].ItemID[j].type].Value, points[frame], alpha: alpha);
                         if (Hover(texture: TextureAssets.Item[RegisterReagent.AlchemistReagents[i].ItemID[j].type].Value, points[frame])) {
-                            Main.instance.MouseText($"Item name: {RegisterReagent.AlchemistReagents[i].ItemID[j].Name}\nneed ingredient {RegisterReagent.AlchemistReagents[i].ItemID[j].stack}");
+                            Main.HoverItem = RegisterReagent.AlchemistReagents[i].ItemID[j];
+                            Main.instance.MouseText(Main.hoverItemName);
                         }
                     }
-                    DrawText(sb, reagent.Descriptions, new(pos.X - 125, pos.Y + 125));
+                    DrawText(sb, reagent.Descriptions, new(posElement.X - 198, posElement.Y + 150));
                 }
             }
         }
     }
+    void DrawParagraph(SpriteBatch sb, Vector2 pos, string text, Color? color = null, float? alpha = null) {
+        alpha ??= this.alpha;
+        color ??= Color.White;
+
+        Texture2D bg = GetTexture2D("AdventurersBookPageEmpty");
+
+        Vector2 center = pos + bg.Size() / 2f;
+        Vector2 textSize = FontAssets.MouseText.Value.MeasureString(text);
+
+        float left = center.X - textSize.X / 2f;
+        float right = center.X + textSize.X / 2f;
+
+        DrawText(center, $"<<{text}>>", color, alpha);
+        // need new texture
+        //sb.Draw(GetTexture2D("Paragraph_Left"), new Vector2(left - 5 - GetTexture2D("Paragraph_Left").Width / 2f, center.Y - 5), null, (Color)(color * alpha), 0f, GetTexture2D("Paragraph_Left").Size() / 2, 1f, SpriteEffects.None, 1f);
+        //sb.Draw(GetTexture2D("Paragraph_Flower"), new Vector2(left - 107 + GetTexture2D("Paragraph_Flower").Width / 2f, center.Y - 4), null, (Color)(color * alpha), 0f, GetTexture2D("Paragraph_Flower").Size() / 2, 1f, SpriteEffects.None, 1f);
+        //sb.Draw(GetTexture2D("Paragraph_Right"), new Vector2(right + 82 - GetTexture2D("Paragraph_Right").Width / 2f, center.Y - 5), null, (Color)(color * alpha), 0f, GetTexture2D("Paragraph_Right").Size() / 2, 1f, SpriteEffects.None, 1f);
+        //sb.Draw(GetTexture2D("Paragraph_Flower"), new Vector2(right + 108 - GetTexture2D("Paragraph_Flower").Width / 2f, center.Y - 4), null, (Color)(color * alpha), 0f, GetTexture2D("Paragraph_Flower").Size() / 2, 1f, SpriteEffects.FlipHorizontally, 1f);
+    }
+    Texture2D GetTexture2D(string name) => GetUI(ShortCat[0] + "Book/" + name).GetAsset().Value;
 }
