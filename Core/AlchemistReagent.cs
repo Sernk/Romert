@@ -7,6 +7,7 @@ public abstract class AlchemistReagent : ModType, ILocalizedModType {
     public string LocalizationCategory => "Reagents";
     public bool Synergy { get; set; }
     public Texture2D Texture { get; private set; }
+    public AlchemistReagentData CurrentType { get; set; }
 
 
     public sealed override void Load() {

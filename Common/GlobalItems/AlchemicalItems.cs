@@ -63,7 +63,12 @@ public class AlchemicalItems : GlobalItem {
             }
             if (!isReagent || isFlask) { Reagent??= GetReagent<NoNInItem>(); }
             if (Reagent != GetReagent<NoNInItem>()) { isReagent = true; }
-            if (isFlask) { SettingReagentInItem(); }
+            if (isFlask) {
+                if (!Lists.Items.FlaskItem.Exists(x => x == entity.type)) {
+                    Lists.Items.FlaskItem.Add(entity.type);
+                }
+                SettingReagentInItem();
+            }
         }
     }
     public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
@@ -71,6 +76,10 @@ public class AlchemicalItems : GlobalItem {
             if (isAlchemistMaterials) {
                 if (line.Name == "Material") { line.Text = Loc(LocCategory[0] + "." + LocCategory[1], "Material"); }
             }
+        }
+        if (Main.LocalPlayer.Get<AlchemistBookPlayer>().ActiveRecipeUI) {
+            tooltips.Add(new(Mod, Romert.ModName + "ActiveReagent", "Added reagent: " + Main.LocalPlayer.Get<AlchemistBookPlayer>().PreviewReagent.Name));
+            //Main.NewText("work");
         }
         //Main.NewText(Reagent);
     }
@@ -98,13 +107,34 @@ public class AlchemicalItems : GlobalItem {
         }
     }
     public override void UpdateInventory(Item item, Player player) {
-        for (int i = 0; i < RegisterReagent.AlchemistReagents.Count; i++) {
-            for (int k = 0; k < RegisterReagent.AlchemistReagents[i].ItemID.Count; k++) {
-                if (item.type == RegisterReagent.AlchemistReagents[i].ItemID[k].type) {
-                    if (item.stack >= RegisterReagent.AlchemistReagents[i].ItemID[k].stack) {
-                        if (!player.Get<AlchemistBookPlayer>().SaveType.Exists(x => x == RegisterReagent.AlchemistReagents[i].Reagent.Name)) {
-                            player.Get<AlchemistBookPlayer>().SaveType.Add(RegisterReagent.AlchemistReagents[i].Reagent.Name);
+        AlchemistBookPlayer bookPlayer = player.Get<AlchemistBookPlayer>();
+        if (Reagent != null && Reagent.HasTexture) {
+            for (int i = 0; i < Reagent.CurrentType.ItemID.Count; i++) {
+                if (item.type == Reagent.CurrentType.ItemID[i].type) {
+                    if (item.stack >= Reagent.CurrentType.ItemID[i].stack) {
+                        if (!bookPlayer.OpenType.Exists(x => x == Reagent.CurrentType.Reagent.Name)) {
+                            bookPlayer.Current.Remove(Reagent.CurrentType.Reagent.Name);
+                            bookPlayer.Locked.Remove(Reagent.CurrentType.Reagent.Name);
+                            bookPlayer.LockedType.Remove(Reagent.CurrentType.ItemID[i]);
+                            bookPlayer.OpenType.Add(Reagent.CurrentType.Reagent.Name);
                         }
+                    }
+                    else {
+                        if (!bookPlayer.OpenType.Exists(x => x == Reagent.CurrentType.Reagent.Name)) {
+                            if (!bookPlayer.LockedType.Exists(x => x.type == Reagent.CurrentType.ItemID[i].type)) {
+                                bookPlayer.Current.Add(Reagent.CurrentType.Reagent.Name);
+                                bookPlayer.Locked.Add(Reagent.CurrentType.Reagent.Name);
+                                bookPlayer.LockedType.Add(item);
+                            }
+                            for (int k = 0; k < bookPlayer.LockedType.Count; k++) {
+                                if (bookPlayer.LockedType[k].type == Reagent.CurrentType.ItemID[i].type) {
+                                    if (bookPlayer.LockedType[k].stack < item.stack) {
+                                        bookPlayer.LockedType[k].stack = item.stack;
+                                    }
+                                }
+                            }
+                        }
+                        else { return; }
                     }
                 }
             }

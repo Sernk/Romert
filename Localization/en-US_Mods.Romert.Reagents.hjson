@@ -22,3 +22,8 @@ Slime: {
 	Name: Slime
 	Descriptions: Slime Descriptions
 }
+
+Lava: {
+	Name: Lava
+	Descriptions: Descriptions Lava
+}

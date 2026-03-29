@@ -22,4 +22,11 @@ Book: {
 	Search: Search reagent
 	HoverSlot: Right Click, to see more info
 	Info1: Explore the world to make new entries
+
+	Paragraph: {
+		Search: Search
+		Reagents: Reagents
+		Recipe: Recipe
+		Descriptions: Descriptions
+	}
 }

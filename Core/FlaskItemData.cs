@@ -3,7 +3,7 @@
 public class FlaskItemData(string name) {
     public string Name { get; private set; } = name;
 
-    public Item GetItem(Item item) => Item = item;
+    public void SetItem(Item item) => Item = item;
     public Item Item { get; private set; }
 
     public void BaseSetting(int price = 0, int rare = 0, int damage = 0) {

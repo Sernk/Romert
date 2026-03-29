@@ -31,7 +31,7 @@ public class FlaskItem : GlobalItem {
                     if (reagent.EditItem().Name != "" && reagent != GetReagent<Look>() && reagent != GetReagent<NoN>()) {
                         FlaskItemData r;
                         r = item.Get<AlchemicalItems>().FlaskReagents[i].EditItem();
-                        r.GetItem(item);
+                        r.SetItem(item);
                         FlaskData.Add(r);
                     }
                 }
