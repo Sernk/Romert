@@ -1,13 +1,15 @@
-﻿using Romert.Core.Exceptions;
+﻿using Romert.Content.Reagents.Rarity;
+using Romert.Core.Exceptions;
 using Terraria.DataStructures;
 
 namespace Romert.Core;
 
 public abstract class AlchemistReagent : ModType, ILocalizedModType {
     public string LocalizationCategory => "Reagents";
-    public bool Synergy { get; set; }
-    public Texture2D Texture { get; private set; }
-    public AlchemistReagentData CurrentType { get; set; }
+    public string SearchName { get; internal set; }
+    public bool Synergy { get; internal set; }
+    public AlchemistReagentData CurrentType { get; internal set; }
+    public ReagentRarity Rarity { get; internal set; }
 
 
     public sealed override void Load() {
@@ -19,7 +21,6 @@ public abstract class AlchemistReagent : ModType, ILocalizedModType {
             if (!HasAsset(TexturePatch)) {
                 throw new NoTexture(Name);
             }
-            Texture = TexturePatch.GetAsset().Value;
         }
     }
     protected override void Register() {
@@ -29,6 +30,7 @@ public abstract class AlchemistReagent : ModType, ILocalizedModType {
     public virtual void Register(RegisterReagent register) { }
     public void SetDefaults() {
         SetStaticDefaults();
+        SearchName = LocalizationName;
     }
 
     public virtual bool HasTexture => true;
@@ -45,5 +47,8 @@ public abstract class AlchemistReagent : ModType, ILocalizedModType {
     public virtual bool CanBySynergia(AlchemistReagent reagent) => false;
     public virtual void Synergia(Player player, Item item, AlchemistReagent reagent) { }
     public virtual void Recipe(Alchemy alchemy) { }
+    public virtual void SetRarity(ReagentRarity rarity) {
+        Rarity = GetReagentRarity<BaseRarity>();
+    }
     public override string ToString() => Name;
 }

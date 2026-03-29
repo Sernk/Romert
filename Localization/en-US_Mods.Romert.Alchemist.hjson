@@ -29,4 +29,10 @@ Book: {
 		Recipe: Recipe
 		Descriptions: Descriptions
 	}
+
+	Filter: {
+		Open: Show only open types
+		Locked: Show only closed types
+		Open_Locked: Show all types
+	}
 }

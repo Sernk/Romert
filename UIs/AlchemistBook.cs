@@ -13,17 +13,21 @@ namespace Romert.UIs;
 public class AlchemistBook : UIState {
     float alpha = 0f;
     float alpha2 = 0f;
-    string searchText = "";
-    bool activeSearch;
 
+    string searchText = "";
+
+    bool activeSearch;
     bool activeInfoForReagent = false;
+
     int activeInfoForReagentNum = 0;
+    int filterSlotVisibleNum = 2;
+    int recipePage = 0;
 
     readonly Dictionary<string, bool> buttonHoverPrev = [];
     readonly Dictionary<string, bool> buttonHoverNow = [];
     readonly Dictionary<int, bool> activeElement = [];
 
-    List<string> DrawElementData = [];
+    readonly List<string> drawElementData = [];
 
     public override void OnInitialize() {
 
@@ -51,7 +55,7 @@ public class AlchemistBook : UIState {
         }
         if (alpha <= 0.01 && !player.Get<AlchemistBookPlayer>().ActiveUI) { GetInstance<Romert>().AlchemistBookUI.SetState(null); }
     }
-
+    #region Utils
     void Draw(SpriteBatch spriteBatch, string name, Vector2 pos, Color? color = null, float? alpha = null) {
         alpha = alpha is null ? this.alpha : alpha;
         color = color is null ? Color.White : color;
@@ -85,7 +89,8 @@ public class AlchemistBook : UIState {
         return rect.Contains(Main.mouseX, Main.mouseY);
     }
     static string Loc(string locKey, string sub = "") => RomertUtil.AddLoc.Loc(LocCategory[0] + ".Book" + sub, locKey);
-
+    Texture2D GetTexture2D(string name) => GetUI(ShortCat[0] + "Book/" + name).GetAsset().Value;
+    #endregion
     protected override void DrawSelf(SpriteBatch spriteBatch) {
         base.DrawSelf(spriteBatch);
 
@@ -109,7 +114,7 @@ public class AlchemistBook : UIState {
         DrawElement(spriteBatch, elementPos);
 
         buttonHoverPrev.Clear();
-        foreach (var kv in buttonHoverNow) {
+        foreach (KeyValuePair<string, bool> kv in buttonHoverNow) {
             buttonHoverPrev[kv.Key] = kv.Value;
         }
     }
@@ -145,103 +150,148 @@ public class AlchemistBook : UIState {
         float scale = 0;
         AlchemistBookPlayer player = Main.LocalPlayer.Get<AlchemistBookPlayer>();
         Vector2 textPos = new Vector2(pos.X + 180, pos.Y - 468) + GetUI(ShortCat[0] + "Book/" + "AdventurersBookPageEmpty").GetAsset().Value.Size() / 2f;
-        if (!activeInfoForReagent) {
-            DrawText(textPos, Loc("Info1"));
-        }
+
+        DrawFilter(sb, new(pos.X + 7, pos.Y));
+
+        if (!activeInfoForReagent) { DrawText(textPos, Loc("Info1")); }
         if (player.OpenType.Count != 0 || player.LockedType.Count != 0) {
             for (int i = 0; i < AlchemistReagentManager.ReagentsData.Count; i++) {
                 if (AlchemistReagentManager.ReagentsData[i].HasTexture) {
                     Texture2D texture = AlchemistReagentManager.ReagentsData[i].TexturePatch.GetAsset().Value;
                     if (!string.IsNullOrWhiteSpace(searchText)) {
                         string search = searchText.Replace(" ", "");
-                        string name = AlchemistReagentManager.ReagentsData[i].LocalizationName.Replace(" ", "");
-                        if (name.Contains(search, StringComparison.OrdinalIgnoreCase)) {
-                            BaseLogic(sb, pos, player, texture, ref scale, i);
-                        }
+                        string name = AlchemistReagentManager.ReagentsData[i].SearchName.Replace(" ", "");
+                        if (name.Contains(search, StringComparison.OrdinalIgnoreCase)) { DrawElement(sb, pos, player, texture, ref scale, i); }
                     }
-                    else {
-                        BaseLogic(sb, pos, player, texture, ref scale, i);
-                    }
+                    else { DrawElement(sb, pos, player, texture, ref scale, i); }
                 }
             }
         }
     }
-    void BaseLogic(SpriteBatch sb, Vector2 pos, AlchemistBookPlayer player, Texture2D texture, ref float scale, int i) {
+    void DrawElement(SpriteBatch sb, Vector2 pos, AlchemistBookPlayer player, Texture2D texture, ref float scale, int i) {
         float target = activeInfoForReagent ? 1f : 0f;
         alpha2 = MathHelper.Lerp(alpha2, target, 0.1f);
+        pos = new(pos.X, pos.Y + 60);
         for (int k = 0; k < player.Current.Count; k++) {
             if (AlchemistReagentManager.ReagentsData[i].Name == player.Current[k]) {
-                if (!DrawElementData.Exists(x => x == player.Current[k])) {
-                    DrawElementData.Add(player.Current[k]);
+                if (!drawElementData.Exists(x => x == player.Current[k])) {
+                    drawElementData.Add(player.Current[k]);
                 }
             }
         }
         // Current 
         for (int k = 0; k < player.OpenType.Count; k++) {
             if (AlchemistReagentManager.ReagentsData[i].Name == player.OpenType[k]) {
-                if (!DrawElementData.Exists(x => x == player.OpenType[k])) {
-                    DrawElementData.Add(player.OpenType[k]);
+                if (!drawElementData.Exists(x => x == player.OpenType[k])) {
+                    drawElementData.Add(player.OpenType[k]);
                 }
             }
         }
-        for (int j = 0; j < DrawElementData.Count; j++) {
-            if (AlchemistReagentManager.ReagentsData[i].Name == DrawElementData[j]) {
-                Draw(sb, "NameSlot", new(pos.X + 210, pos.Y + scale));
-                Draw(sb, "IconSlot", new(pos.X + 7, pos.Y + scale));
-
-                buttonHoverNow[AlchemistReagentManager.ReagentsData[i].Name] = Hover("FullSlot", new(pos.X + 188, pos.Y + scale));
-                bool wasHover = buttonHoverPrev.TryGetValue(AlchemistReagentManager.ReagentsData[i].Name, out var v) && v;
-
-                if (Hover("FullSlot", new(pos.X + 188, pos.Y + scale)) && !wasHover) { SoundEngine.PlaySound(SoundID.MenuTick, player.Player.Center); }
-                if (Hover("FullSlot", new(pos.X + 188, pos.Y + scale))) {
-                    Main.instance.MouseText(Loc("HoverSlot"));
-                    Draw(sb, "FullSlot_Glow", new(pos.X + 188, pos.Y + scale), color: Color.Gold);
-                    if (Main.mouseLeft && Main.mouseLeftRelease) {
-                        if (activeInfoForReagentNum == i) {
-                            if (activeInfoForReagent) {
-                                SoundEngine.PlaySound(SoundID.MenuClose, player.Player.Center);
-                                activeInfoForReagent = false;
-                                activeElement.Clear();
-                                activeElement.Add(activeInfoForReagentNum, activeInfoForReagent);
-                            }
-                            else {
-                                SoundEngine.PlaySound(SoundID.MenuOpen, player.Player.Center);
-                                activeInfoForReagent = true;
-                                activeElement.Clear();
-                                activeElement.Add(activeInfoForReagentNum, activeInfoForReagent);
-                            }
-                        }
-                        else {
-                            SoundEngine.PlaySound(SoundID.MenuOpen, player.Player.Center);
-                            activeInfoForReagent = true;
-                            activeElement.Clear();
-                            activeElement.Add(i, activeInfoForReagent);
-                        }
-                        activeInfoForReagentNum = i;
-                    }
-                }
+        for (int j = 0; j < drawElementData.Count; j++) {
+            if (AlchemistReagentManager.ReagentsData[i].Name == drawElementData[j]) {
                 Vector2 textPos = new Vector2(pos.X + 10, pos.Y - 18 + scale) + GetUI(ShortCat[0] + "Book/" + "NameSlot").GetAsset().Value.Size() / 2f;
                 for (int num = 0; num < player.OpenType.Count; num++) {
                     if (AlchemistReagentManager.ReagentsData[i].Name == player.OpenType[num]) {
-                        activeElement.TryGetValue(i, out bool value);
-                        if (value) {
-                            Page2(sb, new(pos.X + 654, pos.Y + 6), AlchemistReagentManager.ReagentsData[activeInfoForReagentNum], player, alpha2);
+                        if (filterSlotVisibleNum == 0 || filterSlotVisibleNum == 2) {
+                            DrawElement(sb, pos, player, ref scale, i);
+                            activeElement.TryGetValue(i, out bool value);
+                            if (value) {
+                                Page2(sb, new(pos.X + 654, pos.Y + 6 - 60), AlchemistReagentManager.ReagentsData[activeInfoForReagentNum], player, alpha2);
+                                Draw(sb, "FullSlot_Glow", new(pos.X + 188, pos.Y + scale), color: Color.Gold);
+                            }
+                            DrawText(textPos, AlchemistReagentManager.ReagentsData[i].LocalizationName);
+                            AlchemistReagentManager.ReagentsData[i].SearchName = AlchemistReagentManager.ReagentsData[i].LocalizationName;
+                            Draw(sb, texture, new(pos.X + 7, pos.Y + scale));
+                            scale += 60;
                         }
-                        DrawText(textPos, AlchemistReagentManager.ReagentsData[i].LocalizationName);
-                        Draw(sb, texture, new(pos.X + 7, pos.Y + scale));
+                        else {
+                            return;
+                        }
                     }
                 }
                 for (int num = 0; num < player.Locked.Count; num++) {
                     if (AlchemistReagentManager.ReagentsData[i].Name == player.Locked[num]) {
-                        activeElement.TryGetValue(i, out bool value);
-                        if (value) {
-                            Page2Locked(sb, new(pos.X + 654, pos.Y + 6), AlchemistReagentManager.ReagentsData[activeInfoForReagentNum], player, alpha2);
+                        if (filterSlotVisibleNum == 1 || filterSlotVisibleNum == 2) {
+                            DrawElement(sb, pos, player, ref scale, i);
+                            activeElement.TryGetValue(i, out bool value);
+                            if (value) {
+                                Page2Locked(sb, new(pos.X + 654, pos.Y + 6 - 60), AlchemistReagentManager.ReagentsData[activeInfoForReagentNum], player, alpha2);
+                                Draw(sb, "FullSlot_Glow", new(pos.X + 188, pos.Y + scale), color: Color.Gold);
+                            }
+                            DrawText(textPos, "???");
+                            AlchemistReagentManager.ReagentsData[i].SearchName = "???";
+                            Draw(sb, texture: GetTexture2D("Locked"), new(pos.X + 7, pos.Y + scale));
+                            scale += 60;
                         }
-                        DrawText(textPos, "???");
-                        Draw(sb, texture, new(pos.X + 7, pos.Y + scale));
+                        else {
+                            return;
+                        }
                     }
                 }
-                scale += 60;
+            }
+        }
+    }
+    void DrawFilter(SpriteBatch sb, Vector2 pos) {
+        float scale = 0;
+        for (int i = 0; i < 2; i++) {
+            Draw(sb, "FilterSlotIcon", new(pos.X + scale, pos.Y));
+            if (i == 0) {
+                buttonHoverNow["FilterSlotIcon_0"] = Hover("FilterSlotIcon", new(pos.X + scale, pos.Y));
+                bool wasHover = buttonHoverPrev.TryGetValue("FilterSlotIcon_0", out bool v) && v;
+                if (Hover("FilterSlotIcon", new(pos.X, pos.Y)) && !wasHover) {
+                    SoundEngine.PlaySound(SoundID.MenuTick);
+                }
+                if (Hover("FilterSlotIcon", new(pos.X, pos.Y))) {
+                    Draw(sb, "FilterSlotIcon_Glow", new(pos.X + scale, pos.Y), Color.Gold);
+                    if (Main.mouseLeft && Main.mouseLeftRelease) {
+                        filterSlotVisibleNum++;
+                        if (filterSlotVisibleNum > 2) { filterSlotVisibleNum = 0; }
+                    }
+                    string text = "";
+                    if (filterSlotVisibleNum == 0) { text = "Open"; }
+                    if (filterSlotVisibleNum == 1) { text = "Locked"; }
+                    if (filterSlotVisibleNum == 2) { text = "Open_Locked"; }
+                    Main.instance.MouseText(Loc(text, ".Filter"));
+                }
+                if (filterSlotVisibleNum != 2) { Draw(sb, "FilterSlotIcon_Glow", new(pos.X + scale, pos.Y), Color.Gold); }
+                sb.Draw(GetTexture2D("FilterSlotOpenTypeIcon"), new(pos.X + 6, pos.Y + 5), GetTexture2D("FilterSlotOpenTypeIcon").Frame(1, 3, 0, filterSlotVisibleNum), Color.White * alpha, 0f, GetTexture2D("FilterSlotIcon").Size() / 2, 1f, SpriteEffects.None, 1f);
+            }
+            scale += 50;
+        }
+    }
+    void DrawElement(SpriteBatch sb, Vector2 pos, AlchemistBookPlayer player, ref float scale, int i) {
+        Draw(sb, "NameSlot", new(pos.X + 210, pos.Y + scale));
+        Draw(sb, "IconSlot", new(pos.X + 7, pos.Y + scale));
+
+        buttonHoverNow[AlchemistReagentManager.ReagentsData[i].Name] = Hover("FullSlot", new(pos.X + 188, pos.Y + scale));
+        bool wasHover = buttonHoverPrev.TryGetValue(AlchemistReagentManager.ReagentsData[i].Name, out var v) && v;
+
+        if (Hover("FullSlot", new(pos.X + 188, pos.Y + scale)) && !wasHover) { SoundEngine.PlaySound(SoundID.MenuTick, player.Player.Center); }
+        if (Hover("FullSlot", new(pos.X + 188, pos.Y + scale))) {
+            Main.instance.MouseText(Loc("HoverSlot"));
+            Draw(sb, "FullSlot_Glow", new(pos.X + 188, pos.Y + scale), color: Color.Gold);
+            if (Main.mouseLeft && Main.mouseLeftRelease) {
+                if (activeInfoForReagentNum == i) {
+                    if (activeInfoForReagent) {
+                        SoundEngine.PlaySound(SoundID.MenuClose, player.Player.Center);
+                        activeInfoForReagent = false;
+                        activeElement.Clear();
+                        activeElement.Add(activeInfoForReagentNum, activeInfoForReagent);
+                    }
+                    else {
+                        SoundEngine.PlaySound(SoundID.MenuOpen, player.Player.Center);
+                        activeInfoForReagent = true;
+                        activeElement.Clear();
+                        activeElement.Add(activeInfoForReagentNum, activeInfoForReagent);
+                    }
+                }
+                else {
+                    SoundEngine.PlaySound(SoundID.MenuOpen, player.Player.Center);
+                    activeInfoForReagent = true;
+                    activeElement.Clear();
+                    activeElement.Add(i, activeInfoForReagent);
+                }
+                activeInfoForReagentNum = i;
             }
         }
     }
@@ -258,48 +308,114 @@ public class AlchemistBook : UIState {
     }
     void Page2(SpriteBatch sb, Vector2 pos, AlchemistReagent reagent, AlchemistBookPlayer player, float alpha) {
         Vector2 posElement = new(pos.X, pos.Y - 38);
+
         DrawParagraph(sb, new(pos.X - 475, pos.Y - 475), Loc("Recipe", ".Paragraph"), alpha: alpha);
-        DrawParagraph(sb, new(pos.X - 475, pos.Y - 230), Loc("Descriptions", ".Paragraph"), alpha: alpha);
+        DrawParagraph(sb, new(pos.X - 475, pos.Y - 200), Loc("Descriptions", ".Paragraph"), alpha: alpha);
+        DrawRecipePage(sb, pos, reagent, player, alpha);
+        DrawText(sb, reagent.Descriptions, new(posElement.X - 198, posElement.Y + 200));
+    }
+    void DrawRecipePage(SpriteBatch sb, Vector2 pos, AlchemistReagent reagent, AlchemistBookPlayer player, float alpha) {
+        Vector2 posElement = new(pos.X, pos.Y - 38);
+
+        float scale = 0;
+        SpriteEffects effects = SpriteEffects.FlipHorizontally;
+
+        for (int i = 0; i < 2; i++) {
+            sb.Draw(GetTexture2D("Arrow_Button"), new(posElement.X - 25 + scale, posElement.Y + 115), null, Color.White * alpha, 0f, GetTexture2D("Arrow_Button").Size() / 2, 1f, effects, 1f);
+            buttonHoverNow["Arrow_Button_" + i] = Hover("Arrow_Button", new(posElement.X - 25 + scale, posElement.Y + 115));
+            bool wasHover = buttonHoverPrev.TryGetValue("Arrow_Button_" + i, out bool v) && v;
+            if (Hover("Arrow_Button", new(posElement.X - 25 + scale, posElement.Y + 115)) && !wasHover) { SoundEngine.PlaySound(SoundID.MenuTick); }
+            if (Hover("Arrow_Button", new(posElement.X - 25 + scale, posElement.Y + 115))) {
+                sb.Draw(GetTexture2D("Arrow_Button_Glow"), new(posElement.X - 25 + scale, posElement.Y + 115), null, Color.Gold * alpha, 0f, GetTexture2D("Arrow_Button_Glow").Size() / 2, 1f, effects, 1f);
+                if (Main.mouseLeft && Main.mouseLeftRelease) {
+                    if (i == 0) {
+                        recipePage = 0;
+                    }
+                    else { recipePage = 1; }
+                }
+            }
+
+
+            scale += 50;
+            effects = SpriteEffects.None;
+        }
 
         Draw(sb, "RecipeBg", posElement, alpha: alpha);
-
         Draw(sb, "IconSlot", new(posElement.X, pos.Y - 3), alpha: alpha);
         int frame = (int)(Main.GlobalTimeWrappedHourly * 3f) % 5;
         sb.Draw(GetTexture2D("Arrow_Frame"), posElement, GetTexture2D("Arrow_Frame").Frame(1, 5, 0, frame), Color.White * alpha, 0f, GetTexture2D("Arrow").Size() / 2, 1f, SpriteEffects.None, 1f);
-        if (Hover(texture: GetTexture2D("Arrow"), posElement)) {
-            Main.instance.MouseText("Filling in");
-        }
+        if (Hover(texture: GetTexture2D("Arrow"), posElement)) { Main.instance.MouseText("Filling in"); }
         Draw(sb, "IconSlot", new(posElement.X, pos.Y - 73), alpha: alpha);
-        frame = (int)(Main.GlobalTimeWrappedHourly * 1.25f) % Lists.Items.FlaskItem.Count;
-        Draw(sb, TextureAssets.Item[Lists.Items.FlaskItem[frame]].Value, new(posElement.X, pos.Y - 73), alpha: alpha);
-        Draw(sb, texture: TextureAssets.Item[Lists.Items.FlaskItem[frame]].Value, new(posElement.X, pos.Y - 3), alpha: alpha);
-        if (Hover(texture: TextureAssets.Item[Lists.Items.FlaskItem[frame]].Value, new(posElement.X, pos.Y - 73))) {
-            player.ActiveRecipeUI = true;
-            player.PreviewReagent = reagent;
-            Main.HoverItem = new(Lists.Items.FlaskItem[frame]);
-            Main.instance.MouseText(Main.hoverItemName);
-        }
-        if (Hover(texture: TextureAssets.Item[Lists.Items.FlaskItem[frame]].Value, new(posElement.X, pos.Y - 3))) {
-            Main.HoverItem = new(Lists.Items.FlaskItem[frame]);
-            Main.instance.MouseText(Main.hoverItemName);
-        }
 
+        Texture2D texture;
+        scale = 0;
+
+        if (recipePage == 0) {
+            if (reagent.CurrentType.ItemID.Count == 1) {
+                for (int i = 0; i < reagent.CurrentType.ItemID.Count; i++) {
+                    texture = TextureAssets.Item[reagent.CurrentType.ItemID[i].type].Value;
+                    for (int j = 0; j < 2; j++) {
+                        Draw(sb, texture, new(posElement.X, pos.Y - 4 - scale), alpha: alpha);
+                        if (Hover(texture, new(posElement.X, pos.Y - scale))) {
+                            if (j == 0) {
+                                player.ActiveRecipeUI = true;
+                                player.PreviewReagent = reagent;
+                                Main.HoverItem = new(reagent.CurrentType.ItemID[i].type);
+                                Main.instance.MouseText(Main.hoverItemName);
+                            }
+                            else {
+                                // Active UI info reagent
+                                // TODO: next patch
+                            }
+                        }
+                        texture = reagent.TexturePatch.GetAsset().Value;
+                        scale += 70;
+                    }
+                }
+            }
+        }
+        else {
+            frame = (int)(Main.GlobalTimeWrappedHourly * 1.25f) % Lists.Items.FlaskItem.Count;
+            for (int i = 0; i < 2; i++) {
+                Draw(sb, TextureAssets.Item[Lists.Items.FlaskItem[frame]].Value, new(posElement.X, pos.Y - 73 - scale), alpha: alpha);
+                if (Hover(texture: TextureAssets.Item[Lists.Items.FlaskItem[frame]].Value, new(posElement.X, pos.Y - 73 - scale))) {
+                    if (i == 0) {
+                        player.ActiveRecipeUI = true;
+                        player.PreviewReagent = reagent;
+                        Main.HoverItem = new(Lists.Items.FlaskItem[frame]);
+                        Main.instance.MouseText(Main.hoverItemName);
+                    }
+                    else {
+                        Main.HoverItem = new(Lists.Items.FlaskItem[frame]);
+                        Main.instance.MouseText(Main.hoverItemName);
+                    }
+                }
+                scale = -70;
+            }
+        }
+        DrawElementInSlot(sb, pos, reagent, player, alpha);
+    }
+    void DrawElementInSlot(SpriteBatch sb, Vector2 pos, AlchemistReagent reagent, AlchemistBookPlayer player, float alpha) {
+        Vector2 posElement = new(pos.X, pos.Y - 38);
         Vector2[] points = [new(posElement.X - 88, posElement.Y - 55), new(posElement.X + 88, posElement.Y - 55), new(posElement.X - 88, posElement.Y), new(posElement.X + 88, posElement.Y), new(posElement.X - 88, posElement.Y + 55), new(posElement.X + 88, posElement.Y + 55)];
-        frame = (int)(Main.GlobalTimeWrappedHourly * 0.50f) % 6;
+        int frame = (int)(Main.GlobalTimeWrappedHourly * 0.50f) % 6;
 
         for (int i = 0; i < RegisterReagent.AlchemistReagents.Count; i++) {
             for (int j = 0; j < RegisterReagent.AlchemistReagents[i].ItemID.Count; j++) {
                 if (reagent.Name == RegisterReagent.AlchemistReagents[i].Reagent.Name) {
                     for (int k = 0; k < points.Length; k++) {
                         Draw(sb, "IconSlot", points[k], alpha: alpha);
-                        Draw(sb, texture: TextureAssets.Item[RegisterReagent.AlchemistReagents[i].ItemID[j].type].Value, points[frame], alpha: alpha);
-                        if (Hover(texture: TextureAssets.Item[RegisterReagent.AlchemistReagents[i].ItemID[j].type].Value, points[frame])) {
-                            //RegisterReagent.AlchemistReagents[i].ItemID[j].stack = 1;
-                            Main.HoverItem = RegisterReagent.AlchemistReagents[i].ItemID[j];
-                            Main.instance.MouseText(Main.hoverItemName);
+                        if (recipePage != 0) {
+                            Draw(sb, texture: reagent.TexturePatch.GetAsset().Value, points[frame], alpha: alpha);
+                            if (Hover(texture: TextureAssets.Item[RegisterReagent.AlchemistReagents[i].ItemID[j].type].Value, points[frame])) {
+                                // Active UI info reagent
+                                // TODO: next patch
+                                ////RegisterReagent.AlchemistReagents[i].ItemID[j].stack = 1;
+                                //Main.HoverItem = RegisterReagent.AlchemistReagents[i].ItemID[j];
+                                //Main.instance.MouseText(Main.hoverItemName);
+                            }
                         }
                     }
-                    DrawText(sb, reagent.Descriptions, new(posElement.X - 198, posElement.Y + 150));
                 }
             }
         }
@@ -318,10 +434,11 @@ public class AlchemistBook : UIState {
 
         DrawText(center, text, color, alpha);
         // need new texture
-        sb.Draw(GetTexture2D("Paragraph_Left"), new Vector2(left - 5 - GetTexture2D("Paragraph_Left").Width / 2f, center.Y - 5), null, (Color)(color * alpha), 0f, GetTexture2D("Paragraph_Left").Size() / 2, 1f, SpriteEffects.None, 1f);
+        int frame = (int)(Main.GlobalTimeWrappedHourly * 3f) % 16;
+        sb.Draw(GetTexture2D("Paragraph_Left_Frame"), new Vector2(left - 5 - GetTexture2D("Paragraph_Left").Width / 2f, center.Y - 5), GetTexture2D("Paragraph_Left_Frame").Frame(1, 16, 0, frame), (Color)(color * alpha), 0f, GetTexture2D("Paragraph_Left").Size() / 2, 1f, SpriteEffects.None, 1f);
         //sb.Draw(GetTexture2D("Paragraph_Flower"), new Vector2(left - 107 + GetTexture2D("Paragraph_Flower").Width / 2f, center.Y - 4), null, (Color)(color * alpha), 0f, GetTexture2D("Paragraph_Flower").Size() / 2, 1f, SpriteEffects.None, 1f);
-        sb.Draw(GetTexture2D("Paragraph_Right"), new Vector2(right + 82 - GetTexture2D("Paragraph_Right").Width / 2f, center.Y - 5), null, (Color)(color * alpha), 0f, GetTexture2D("Paragraph_Right").Size() / 2, 1f, SpriteEffects.None, 1f);
+
+        sb.Draw(GetTexture2D("Paragraph_Right_Frame"), new Vector2(right + 85 - GetTexture2D("Paragraph_Right").Width / 2f, center.Y - 5), GetTexture2D("Paragraph_Right_Frame").Frame(1, 16, 0, frame), (Color)(color * alpha), 0f, GetTexture2D("Paragraph_Right").Size() / 2, 1f, SpriteEffects.None, 1f);
         //sb.Draw(GetTexture2D("Paragraph_Flower"), new Vector2(right + 108 - GetTexture2D("Paragraph_Flower").Width / 2f, center.Y - 4), null, (Color)(color * alpha), 0f, GetTexture2D("Paragraph_Flower").Size() / 2, 1f, SpriteEffects.FlipHorizontally, 1f);
     }
-    Texture2D GetTexture2D(string name) => GetUI(ShortCat[0] + "Book/" + name).GetAsset().Value;
 }

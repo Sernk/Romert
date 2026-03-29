@@ -1,4 +1,5 @@
-﻿using Romert.Core;
+﻿using Romert.Content.Reagents.Rarity;
+using Romert.Core;
 using System.Collections.Generic;
 using Terraria.ModLoader.IO;
 
@@ -50,6 +51,6 @@ public class AlchemistBookPlayer : ModPlayer {
         PreviewReagent = null;
     }
     public override void PostUpdate() {
-
+        //Main.NewText(ReagentRarityManager.RaritiesData[0].Tooltips);
     }
 }
