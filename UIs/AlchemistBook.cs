@@ -204,9 +204,6 @@ public class AlchemistBook : UIState {
                             Draw(sb, texture, new(pos.X + 7, pos.Y + scale));
                             scale += 60;
                         }
-                        else {
-                            return;
-                        }
                     }
                 }
                 for (int num = 0; num < player.Locked.Count; num++) {
@@ -222,9 +219,6 @@ public class AlchemistBook : UIState {
                             AlchemistReagentManager.ReagentsData[i].SearchName = "???";
                             Draw(sb, texture: GetTexture2D("Locked"), new(pos.X + 7, pos.Y + scale));
                             scale += 60;
-                        }
-                        else {
-                            return;
                         }
                     }
                 }
@@ -346,6 +340,7 @@ public class AlchemistBook : UIState {
         sb.Draw(GetTexture2D("Arrow_Frame"), posElement, GetTexture2D("Arrow_Frame").Frame(1, 5, 0, frame), Color.White * alpha, 0f, GetTexture2D("Arrow").Size() / 2, 1f, SpriteEffects.None, 1f);
         if (Hover(texture: GetTexture2D("Arrow"), posElement)) { Main.instance.MouseText("Filling in"); }
         Draw(sb, "IconSlot", new(posElement.X, pos.Y - 73), alpha: alpha);
+        DrawElementInSlot(sb, pos, reagent, player, alpha);
 
         Texture2D texture;
         scale = 0;
@@ -358,14 +353,11 @@ public class AlchemistBook : UIState {
                         Draw(sb, texture, new(posElement.X, pos.Y - 4 - scale), alpha: alpha);
                         if (Hover(texture, new(posElement.X, pos.Y - scale))) {
                             if (j == 0) {
-                                player.ActiveRecipeUI = true;
-                                player.PreviewReagent = reagent;
                                 Main.HoverItem = new(reagent.CurrentType.ItemID[i].type);
                                 Main.instance.MouseText(Main.hoverItemName);
                             }
                             else {
-                                // Active UI info reagent
-                                // TODO: next patch
+                                reagent.DrawElement(sb, new(Main.mouseX + 20, Main.mouseY + 20));
                             }
                         }
                         texture = reagent.TexturePatch.GetAsset().Value;
@@ -393,7 +385,6 @@ public class AlchemistBook : UIState {
                 scale = -70;
             }
         }
-        DrawElementInSlot(sb, pos, reagent, player, alpha);
     }
     void DrawElementInSlot(SpriteBatch sb, Vector2 pos, AlchemistReagent reagent, AlchemistBookPlayer player, float alpha) {
         Vector2 posElement = new(pos.X, pos.Y - 38);
@@ -408,11 +399,7 @@ public class AlchemistBook : UIState {
                         if (recipePage != 0) {
                             Draw(sb, texture: reagent.TexturePatch.GetAsset().Value, points[frame], alpha: alpha);
                             if (Hover(texture: TextureAssets.Item[RegisterReagent.AlchemistReagents[i].ItemID[j].type].Value, points[frame])) {
-                                // Active UI info reagent
-                                // TODO: next patch
-                                ////RegisterReagent.AlchemistReagents[i].ItemID[j].stack = 1;
-                                //Main.HoverItem = RegisterReagent.AlchemistReagents[i].ItemID[j];
-                                //Main.instance.MouseText(Main.hoverItemName);
+                                reagent.DrawElement(sb, new(Main.mouseX + 20, Main.mouseY + 20));
                             }
                         }
                     }

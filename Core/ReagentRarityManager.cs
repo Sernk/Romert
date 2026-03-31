@@ -13,6 +13,11 @@ public class ReagentRarityManager : CleaningType {
                 rarity.Register();
             }
         }
-        PostLoad = true;
+        PostLoad = AlchemistReagentManager.PostLoad;
+        if (PostLoad) {
+            foreach (ReagentRarity rarity in RaritiesData) {
+                rarity.AddID();
+            }
+        }
     }
 }
