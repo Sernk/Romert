@@ -17,8 +17,8 @@ public class FlaskItem : GlobalItem {
         AlchemistPlayer alchemist = player.Get<AlchemistPlayer>();
         if (item.Get<AlchemicalItems>().isFlask) {
             for (int i = 0; i < item.Get<AlchemicalItems>().FlaskReagents.Length; i++) {
-                for (int k = 0; k < alchemist.AlchemistDatas.Count; k++) {
-                    item.Get<AlchemicalItems>().FlaskReagents[i].Buff(player, alchemist.AlchemistDatas[k]);
+                for (int j = 0; j < alchemist.AlchemistDatas.Count; j++) {
+                    item.Get<AlchemicalItems>().FlaskReagents[i].Buff(player, alchemist.AlchemistDatas[j]);
                 }
             }
         }
@@ -36,21 +36,13 @@ public class FlaskItem : GlobalItem {
                     }
                 }
             }
-            for (int k = 0; k < FlaskData.Count; k++) {
-                item.rare = FlaskData[k].Rare is 0 ? item.rare : FlaskData[k].Rare;
-                item.value = FlaskData[k].Price is 0 ? item.value : FlaskData[k].Price;
+            for (int j = 0; j < FlaskData.Count; j++) {
+                item.rare = FlaskData[j].Rare is 0 ? item.rare : FlaskData[j].Rare;
+                item.value = FlaskData[j].Price is 0 ? item.value : FlaskData[j].Price;
             }
         }
-        if (Main.HoverItem.type == ItemID.None) {
-            if (Main.rand.NextBool(30)) { FlaskData.Clear(); }
-        }
-        else { 
-            // List<int> Flask
-            //if (Main.HoverItem.netID > 0) {
-            //    //if (!Main.HoverItem.Get<AlchemicalItems>().isFlask) {
-            //    //    if (Main.rand.NextBool(30)) { FlaskData.Clear(); }
-            //    //}
-            //}
+        if (!Lists.Items.FlaskItem.Contains(Main.HoverItem.type)) {
+            if (Main.rand.NextBool(60)) { FlaskData.Clear(); }
         }
     }
     public override void ModifyWeaponDamage(Item item, Player player, ref StatModifier damage) {
@@ -69,12 +61,12 @@ public class FlaskItem : GlobalItem {
                     type = FlaskData[i].ProjectileType is 0 ? type : FlaskData[i].ProjectileType;
                     damage = FlaskData[i].ProjectileDamage is 0 ? damage : FlaskData[i].ProjectileDamage;
                     knockback = FlaskData[i].ProjectileKnockback is 0 ? knockback : FlaskData[i].ProjectileKnockback;
-                    for (int k = 0; k < item.Get<AlchemicalItems>().FlaskReagents.Length; k++) {
-                        AlchemistReagent reagent = item.Get<AlchemicalItems>().FlaskReagents[k];
+                    for (int j = 0; j < item.Get<AlchemicalItems>().FlaskReagents.Length; j++) {
+                        AlchemistReagent reagent = item.Get<AlchemicalItems>().FlaskReagents[j];
                         if (reagent.CanNewShot(reagent.Synergy)) {
                             return reagent.Shoot(player, source, position, velocity, type, damage, knockback);
                         }
-                        else { i++; k++; }
+                        else { i++; j++; }
                     }
                 }
                 return orig;

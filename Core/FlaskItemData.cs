@@ -28,4 +28,5 @@ public class FlaskItemData(string name) {
     public int ProjectileDamage { get; private set; }
     public float ProjectileSpeed { get; private set; }
     public float ProjectileKnockback { get; private set; }
+    public override string ToString() => Name;
 }

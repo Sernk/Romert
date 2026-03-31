@@ -339,13 +339,13 @@ public class AlchemistBook : UIState {
         int frame = (int)(Main.GlobalTimeWrappedHourly * 3f) % 5;
         sb.Draw(GetTexture2D("Arrow_Frame"), posElement, GetTexture2D("Arrow_Frame").Frame(1, 5, 0, frame), Color.White * alpha, 0f, GetTexture2D("Arrow").Size() / 2, 1f, SpriteEffects.None, 1f);
         if (Hover(texture: GetTexture2D("Arrow"), posElement)) { Main.instance.MouseText("Filling in"); }
-        Draw(sb, "IconSlot", new(posElement.X, pos.Y - 73), alpha: alpha);
-        DrawElementInSlot(sb, pos, reagent, player, alpha);
+        Draw(sb, "IconSlot", new(posElement.X, pos.Y - 73), alpha: alpha);       
 
         Texture2D texture;
         scale = 0;
 
         if (recipePage == 0) {
+            DrawElementInSlot(sb, pos, reagent, player, alpha);
             if (reagent.CurrentType.ItemID.Count == 1) {
                 for (int i = 0; i < reagent.CurrentType.ItemID.Count; i++) {
                     texture = TextureAssets.Item[reagent.CurrentType.ItemID[i].type].Value;
@@ -356,9 +356,7 @@ public class AlchemistBook : UIState {
                                 Main.HoverItem = new(reagent.CurrentType.ItemID[i].type);
                                 Main.instance.MouseText(Main.hoverItemName);
                             }
-                            else {
-                                reagent.DrawElement(sb, new(Main.mouseX + 20, Main.mouseY + 20));
-                            }
+                            else { reagent.DrawElement(sb, new(Main.mouseX + 20, Main.mouseY + 20)); }
                         }
                         texture = reagent.TexturePatch.GetAsset().Value;
                         scale += 70;
@@ -384,6 +382,7 @@ public class AlchemistBook : UIState {
                 }
                 scale = -70;
             }
+            DrawElementInSlot(sb, pos, reagent, player, alpha);
         }
     }
     void DrawElementInSlot(SpriteBatch sb, Vector2 pos, AlchemistReagent reagent, AlchemistBookPlayer player, float alpha) {

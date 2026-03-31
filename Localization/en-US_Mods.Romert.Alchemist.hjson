@@ -2,7 +2,9 @@ AlchemistsFlask.DisplayName: alchemical damage
 
 Tooltips: {
 	Material: Alchemist material
-	M: S
+	ActiveReagent: Active reagent:
+	Add: Added reagent:
+	Has: Has reagent:
 }
 
 Table: {
