@@ -16,8 +16,6 @@ namespace Romert.Content.Items.Other {
             Item.rare = RarityType<Soul>();
 			Item.value = Item.buyPrice(silver: 1);
 			Item.GetGlobalItem<RomertItems>().oldItem = true;
-            Item.IsAlchemistPoisoning();
-            Item.Get<AlchemicalItems>().AddSlot(Name, 0, 0, 0);
 
         }
         //     public override bool PreDrawTooltip(ReadOnlyCollection<TooltipLine> lines, ref int x, ref int y) {

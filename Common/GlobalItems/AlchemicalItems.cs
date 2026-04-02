@@ -80,20 +80,28 @@ public class AlchemicalItems : GlobalItem {
         }
     }
     public override bool PreDrawTooltip(Item item, ReadOnlyCollection<TooltipLine> lines, ref int x, ref int y) {
+        Vector2 centePos;
         float scale = 4;
-        for (int i = 0; i < lines.Count; i++) { scale += FontAssets.MouseText.Value.MeasureString(lines[i].Text).Y; }
+        float max = 0;
+        for (int i = 0; i < lines.Count; i++) {
+            centePos = FontAssets.MouseText.Value.MeasureString(lines[i].Text);
+            scale += centePos.Y;
+            if (max < centePos.X) { max = centePos.X;}
+        }
+        centePos = new(x + max / 2, y + scale - 1);
+        scale += 12;
         AlchemistBookPlayer player = Main.LocalPlayer.Get<AlchemistBookPlayer>();
         if (FlaskReagents[0] != null) {
             for (int i = 0; i < FlaskReagents.Length; i++) {
                 if (FlaskReagents[i].Name != GetReagent<NoN>().Name && FlaskReagents[i].Name != GetReagent<Look>().Name) {
-                    if (player.HasBook) { Reagent.DrawElementInInventory(Main.spriteBatch, new(x - 12, y + scale), reagents: FlaskReagents); }
+                    if (player.HasBook) { Reagent.DrawElementInInventory(Main.spriteBatch, new(x - 12, y + scale), centePos, reagents: FlaskReagents); }
                 }
                 else {
-                    if (player.ActiveRecipeUI) { player.PreviewReagent.DrawElementInInventory(Main.spriteBatch, new(x - 12, y + scale), reagent: player.PreviewReagent); }
+                    if (player.ActiveRecipeUI) { player.PreviewReagent.DrawElementInInventory(Main.spriteBatch, new(x - 12, y + scale), centePos, reagent: player.PreviewReagent); }
                 }
             }
         }
-        if(FlaskReagents[0] == null && player.HasBook && Reagent != GetReagent<NoNInItem>()) { Reagent.DrawElementInInventory(Main.spriteBatch, new(x - 12, y + scale), true, reagent: Reagent); }
+        if(FlaskReagents[0] == null && player.HasBook && Reagent != GetReagent<NoNInItem>()) { Reagent.DrawElementInInventory(Main.spriteBatch, new(x - 12, y + scale), centePos, reagentItem: true, reagent: Reagent); }
         return base.PreDrawTooltip(item, lines, ref x, ref y);
     }
     public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
