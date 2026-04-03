@@ -4,6 +4,7 @@ namespace Romert.Core;
 
 public class ReagentRarityManager : CleaningType {
     public static Dictionary<string, ReagentRarity> Rarities { get; private set; } = [];
+    public static Dictionary<int, string> ColorID { get; private set; } = [];
     public static List<ReagentRarity> RaritiesData { get; private set; } = [];
     public static bool PostLoad { get; private set; } = false;
 

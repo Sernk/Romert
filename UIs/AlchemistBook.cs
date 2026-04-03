@@ -389,6 +389,7 @@ public class AlchemistBook : UIState {
         Vector2 posElement = new(pos.X, pos.Y - 38);
         Vector2[] points = [new(posElement.X - 88, posElement.Y - 55), new(posElement.X + 88, posElement.Y - 55), new(posElement.X - 88, posElement.Y), new(posElement.X + 88, posElement.Y), new(posElement.X - 88, posElement.Y + 55), new(posElement.X + 88, posElement.Y + 55)];
         int frame = (int)(Main.GlobalTimeWrappedHourly * 0.50f) % 6;
+        bool hover = false;
 
         for (int i = 0; i < RegisterReagent.AlchemistReagents.Count; i++) {
             for (int j = 0; j < RegisterReagent.AlchemistReagents[i].ItemID.Count; j++) {
@@ -397,14 +398,13 @@ public class AlchemistBook : UIState {
                         Draw(sb, "IconSlot", points[k], alpha: alpha);
                         if (recipePage != 0) {
                             Draw(sb, texture: reagent.TexturePatch.GetAsset().Value, points[frame], alpha: alpha);
-                            if (Hover(texture: TextureAssets.Item[RegisterReagent.AlchemistReagents[i].ItemID[j].type].Value, points[frame])) {
-                                reagent.DrawElement(sb, new(Main.mouseX + 20, Main.mouseY + 20));
-                            }
+                            if (Hover(texture: TextureAssets.Item[RegisterReagent.AlchemistReagents[i].ItemID[j].type].Value, points[frame])) { hover = true; }
                         }
                     }
                 }
             }
         }
+        if (hover) { reagent.DrawElement(sb, new(Main.mouseX + 20, Main.mouseY + 20)); }
     }
     void DrawParagraph(SpriteBatch sb, Vector2 pos, string text, Color? color = null, float? alpha = null) {
         alpha ??= this.alpha;

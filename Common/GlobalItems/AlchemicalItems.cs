@@ -4,10 +4,13 @@ using Romert.Content.Reagents.Flask;
 using Romert.Core;
 using Romert.Core.Exceptions;
 using Romert.Resources;
+using Romert.UIs;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Terraria.GameContent;
 using Terraria.ModLoader.IO;
+using Terraria.UI;
 
 namespace Romert.Common.GlobalItems;
 
@@ -24,6 +27,8 @@ public class AlchemicalItems : GlobalItem {
     float glowAlpha = 0f;
 
     public int[] FlaskSlot { get; private set; } = new int[6]; // -1 is look slot, 0 is empty slot, 1 is has value is slot. [-∞; -2] U [2; ∞] is Exception 
+
+    public UIState ReagentTooltips { get; private set; } = null;
 
     public override bool InstancePerEntity => true;
     public sealed override void SaveData(Item item, TagCompound tag) {
@@ -70,13 +75,7 @@ public class AlchemicalItems : GlobalItem {
                     if (FlaskSlot[i] == 0) { FlaskReagents[i] = GetReagent<NoN>(); }
                 }
             }
-        }
-    }
-    public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
-        foreach (TooltipLine line in tooltips) {
-            if (isAlchemistMaterials) {
-                if (line.Name == "Material") { line.Text = Loc(LocCategory[0] + "." + LocCategory[1], "Material"); }
-            }
+            if (isReagent && !Lists.Items.ReagentItem.Exists(x => x == entity.type)) { Lists.Items.ReagentItem.Add(entity.type); }
         }
     }
     public override bool PreDrawTooltip(Item item, ReadOnlyCollection<TooltipLine> lines, ref int x, ref int y) {
@@ -88,21 +87,22 @@ public class AlchemicalItems : GlobalItem {
             scale += centePos.Y;
             if (max < centePos.X) { max = centePos.X;}
         }
-        centePos = new(x + max / 2, y + scale - 1);
-        scale += 12;
-        AlchemistBookPlayer player = Main.LocalPlayer.Get<AlchemistBookPlayer>();
-        if (FlaskReagents[0] != null) {
-            for (int i = 0; i < FlaskReagents.Length; i++) {
-                if (FlaskReagents[i].Name != GetReagent<NoN>().Name && FlaskReagents[i].Name != GetReagent<Look>().Name) {
-                    if (player.HasBook) { Reagent.DrawElementInInventory(Main.spriteBatch, new(x - 12, y + scale), centePos, reagents: FlaskReagents); }
-                }
-                else {
-                    if (player.ActiveRecipeUI) { player.PreviewReagent.DrawElementInInventory(Main.spriteBatch, new(x - 12, y + scale), centePos, reagent: player.PreviewReagent); }
-                }
+        if (ReagentTooltips == null && Main.LocalPlayer.Get<AlchemistBookPlayer>().HasBook && Main.LocalPlayer.Get<AlchemistBookPlayer>().VisibleBookInfo) {
+            if (FlaskReagents[0] != null) { ReagentTooltips = new ReagentTooltips(new(x - 12, y + scale + 12), new(x + max / 2, y + scale - 1), item, Reagent, FlaskReagents); }
+            else {
+                if (Reagent != GetReagent<NoNInItem>()) { ReagentTooltips = new ReagentTooltips(new(x - 12, y + scale + 12), new(x + max / 2, y + scale - 1), item, Reagent, FlaskReagents); }
+            }
+            GetInstance<Romert>().ReagentTooltipsUI.SetState(ReagentTooltips);
+        }
+        DrawReagentTooltipHeader(Main.spriteBatch, new(x - 12, y + scale + 12), new(x + max / 2, y + scale - 1), Reagent);
+        return base.PreDrawTooltip(item, lines, ref x, ref y);
+    }
+    public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
+        foreach (TooltipLine line in tooltips) {
+            if (isAlchemistMaterials) {
+                if (line.Name == "Material") { line.Text = Loc(LocCategory[0] + "." + LocCategory[1], "Material"); }
             }
         }
-        if(FlaskReagents[0] == null && player.HasBook && Reagent != GetReagent<NoNInItem>()) { Reagent.DrawElementInInventory(Main.spriteBatch, new(x - 12, y + scale), centePos, reagentItem: true, reagent: Reagent); }
-        return base.PreDrawTooltip(item, lines, ref x, ref y);
     }
     public override bool PreDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         bool active = Main.LocalPlayer.Get<AlchemistTilePlayer>().ActiveAlchemistUI;
@@ -114,8 +114,8 @@ public class AlchemicalItems : GlobalItem {
         return base.PreDrawInInventory(item, spriteBatch, position, frame, drawColor, itemColor, origin, scale);
     }
     public override void HoldItem(Item item, Player player) {
-        AlchemistPlayer alchemist = player.Get<AlchemistPlayer>();
-        if (IsAlchemistPoisoningItems.Contains(item.type)) { alchemist.AlchemistDatas[0].IsActive = true; }
+        // UpdateInventory
+        if (IsAlchemistPoisoningItems.Contains(item.type)) { player.Get<AlchemistPlayer>().AlchemistDatas[0].IsActive = true; }
         if (FlaskReagents != null) {
             for (int i = 0; i < AlchemistReagentManager.ReagentsData.Count; i++) {
                 for (int j = 0; j < FlaskReagents.Length; j++) {
@@ -128,6 +128,7 @@ public class AlchemicalItems : GlobalItem {
         }
     }
     public override void UpdateInventory(Item item, Player player) {
+        // Book open system
         AlchemistBookPlayer bookPlayer = player.Get<AlchemistBookPlayer>();
         if (Reagent != null && Reagent.HasTexture) {
             for (int i = 0; i < Reagent.CurrentType.ItemID.Count; i++) {
@@ -160,6 +161,10 @@ public class AlchemicalItems : GlobalItem {
                 }
             }
         }
+        if (!Lists.Items.FlaskItem.Contains(Main.HoverItem.type) && !Lists.Items.ReagentItem.Contains(Main.HoverItem.type) && !Main.LocalPlayer.Get<AlchemistBookPlayer>().HasBook || !Main.LocalPlayer.Get<AlchemistBookPlayer>().VisibleBookInfo) {
+            ReagentTooltips = null;
+            GetInstance<Romert>().ReagentTooltipsUI.SetState(ReagentTooltips);
+        }
     }
     public override bool CanUseItem(Item item, Player player) {
         bool orig = base.CanUseItem(item, player);
@@ -179,5 +184,21 @@ public class AlchemicalItems : GlobalItem {
         for (int i = FlaskReagents.Length - 1; i >= 0; i--) {
             if (FlaskReagents[i] == GetReagent<NoN>()) { FlaskReagents[i] = reagent; break; }
         }
+    }
+    public void DrawReagentTooltipHeader(SpriteBatch sb, Vector2 pos, Vector2 centerPos, AlchemistReagent reagent) {
+        float tooltipsSize = pos.X + 12 - centerPos.X;
+        // I hate it when variables are created just for a one-time use like this, but in this case, there’s no way around it
+        Rectangle moreLeft = new((int)(centerPos.X + tooltipsSize + 12), (int)centerPos.Y - 5, (int)Math.Abs(centerPos.X + tooltipsSize - centerPos.X + 30), 10);
+        Rectangle moreRight = new((int)(centerPos.X + 19), (int)centerPos.Y - 5, (int)Math.Abs(centerPos.X - tooltipsSize - centerPos.X - 24), 10);
+
+        sb.Draw(GetUI("/Alchemist/HoverReagent_Start_MoreLeft").GetAsset().Value, destinationRectangle: moreLeft, Color.White);
+        sb.Draw(GetUI("/Alchemist/HoverReagent_Start_MoreRight").GetAsset().Value, destinationRectangle: moreRight, Color.White);
+
+        sb.Draw(GetUI("/Alchemist/HoverReagent_Start_Center_Empty").GetAsset().Value, position: centerPos, null, Color.White, 0f, GetUI("/Alchemist/HoverReagent_Start_Center_Empty").GetAsset().Value.Size() / 2f, 1, SpriteEffects.None, 1);
+        ReagentRarityManager.ColorID.TryGetValue(reagent.Rarity.Power, out string value);
+        string textureName = reagent == GetReagent<NoNInItem>() ? GetUI("/Alchemist/HoverReagent_Start_Cristal_Gray") : reagent.Rarity.TexturePatch;
+        sb.Draw(textureName.GetAsset().Value, position: new(centerPos.X - 2, centerPos.Y), null, Color.White, 0f, textureName.GetAsset().Size() / 2f, 1, SpriteEffects.None, 1);
+        sb.Draw(GetUI("/Alchemist/HoverReagent_Start_LeftEnd").GetAsset().Value, position: new(centerPos.X + tooltipsSize, centerPos.Y), null, Color.White, 0f, GetUI("/Alchemist/HoverReagent_Start_LeftEnd").GetAsset().Value.Size() / 2f, 1, SpriteEffects.None, 1);
+        sb.Draw(GetUI("/Alchemist/HoverReagent_Start_RightEnd").GetAsset().Value, position: new(centerPos.X - tooltipsSize + 3, centerPos.Y), null, Color.White, 0f, GetUI("/Alchemist/HoverReagent_Start_RightEnd").GetAsset().Value.Size() / 2f, 1, SpriteEffects.None, 1);
     }
 }

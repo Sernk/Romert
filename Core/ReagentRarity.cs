@@ -1,16 +1,19 @@
-﻿namespace Romert.Core;
+﻿using Romert.Core.Exceptions;
+
+namespace Romert.Core;
 
 public abstract class ReagentRarity : CleaningType {
     public string Name => GetType().Name;
+    public string VanillaPatch => "Romert/Asset/Textures/UI/Alchemist/";
 
-    public int Time { get; protected set; } = 60;
     public int ID { get; private set; }
+    public int Power { get; protected set; } = 0;
 
     public Color Color { get; protected set; } 
     public Color BorderColor { get; protected set; } = Color.Black;
-    public Color[] Colors { get; protected set; }
 
     public bool IsAnimated { get; protected set; }
+
     public string Tooltips { get; protected set; }
 
     public void Register() {
@@ -32,8 +35,15 @@ public abstract class ReagentRarity : CleaningType {
         ReagentRarityManager.RaritiesData.Add(this);
         ReagentRarityManager.Rarities.Add(Name, this);
         SettingRarity();
+        if (Main.netMode != NetmodeID.Server) {
+            if (HasAsset(TexturePatch)) { ReagentRarityManager.ColorID.Add(Power, TexturePatch); }
+            else { throw new NoTexture(Name); }
+        }
     }
-    public virtual Color AnimatedColor(Color[] colors, int time) => Animated(colors, time);
+    public virtual string TexturePatch => (GetType().Namespace + "." + Name).Replace('.', '/');
+    public virtual Color AnimatedColor() => Animated(null, 0);
+    public virtual void SettingRarity() { }
+
     public Color Animated(Color[] colors, int time) {
         int transitionTime = time;
         int colorCount = colors.Length;
@@ -49,5 +59,4 @@ public abstract class ReagentRarity : CleaningType {
         return Color.Lerp(from, to, t);
     }
 
-    public virtual void SettingRarity() { }
 }

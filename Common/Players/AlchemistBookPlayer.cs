@@ -8,6 +8,7 @@ public class AlchemistBookPlayer : ModPlayer {
     public bool HasBook;
     public bool ActiveUI;
     public bool ActiveRecipeUI;
+    public bool VisibleBookInfo;
 
     public AlchemistReagent PreviewReagent;
 
@@ -18,6 +19,8 @@ public class AlchemistBookPlayer : ModPlayer {
 
 
     public override void LoadData(TagCompound tag) {
+        VisibleBookInfo = tag.GetBool($"{Romert.ModName}_Visible");
+
         OpenType = tag.Get<List<string>>($"{Romert.ModName}_Open_Reagents");
         Current =  tag.Get<List<string>>($"{Romert.ModName}_Current_Reagents");
         Locked = tag.Get<List<string>>($"{Romert.ModName}_Locked_Reagents");
@@ -26,6 +29,8 @@ public class AlchemistBookPlayer : ModPlayer {
         }
     }
     public override void SaveData(TagCompound tag) {
+        tag[$"{Romert.ModName}_Visible"] = VisibleBookInfo;
+
         tag[$"{Romert.ModName}_Open_Reagents"] = OpenType;
         tag[$"{Romert.ModName}_Current_Reagents"] = Current;
         tag[$"{Romert.ModName}_Locked_Reagents"] = Locked;
@@ -37,6 +42,7 @@ public class AlchemistBookPlayer : ModPlayer {
         HasBook = false;
         ActiveUI = false;
         ActiveRecipeUI = false;
+        VisibleBookInfo = true;
         PreviewReagent = null;
         OpenType = [];
         Current  = [];

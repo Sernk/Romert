@@ -37,4 +37,14 @@ Book: {
 		Locked: Show only closed types
 		Open_Locked: Show all types
 	}
+
+	Icon: {
+		Info:
+			'''
+			Display information about the reagent. 
+			Current value: {0}
+			'''
+		Disable: on
+		Enable: off
+	}
 }
