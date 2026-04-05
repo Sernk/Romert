@@ -16,3 +16,10 @@ Items: {
 }
 
 Tiles.AlchemicalShelf.MapEntry: Alchemical Shelf
+
+Projectiles: {
+	BaseFlaskProj.DisplayName: Base Flask Proj
+	SlimeLyga.DisplayName: Slime Lyga
+	SlimeBubble.DisplayName: Slime Bubble
+	SlomeBoble_Poison.DisplayName: Slome Boble_ Poison
+}

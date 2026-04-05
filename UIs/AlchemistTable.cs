@@ -130,16 +130,19 @@ public class AlchemistTable : UIState {
         Draw(spriteBatch, "TestAlchemicalTableTextPanel", new(basePos.X, basePos.Y - 300));
         Draw(spriteBatch, "TestAlchemicalTableSlotPanel", new(basePos.X, basePos.Y + 300));
 
+        bool drawButton = false;
+        AlchemistReagent reagent = null;
         if (flask.Item.type != ItemID.None) { 
             DrawSlot(spriteBatch, slotPos, flask.Item, out string text);
             if (text != "") { DrawText(textPos, text); }
             for (int i = 0; i < 6; i++) {
                 if (ReagentSlot[i].Item.type != ItemID.None) {
                     foreach (AlchemyManager recipes in Alchemy.Manager) {
-                        Main.NewText(string.Join(",", flask.Item.Get<AlchemicalItems>().FlaskReagents.AsEnumerable()));
+                        ///Main.NewText(string.Join(",", flask.Item.Get<AlchemicalItems>().FlaskReagents.AsEnumerable()));
                         if (CheckRecipe(recipes, ReagentSlot)) {
-                            DrawButton(spriteBatch, buttonPos);
-                            
+                            reagent = recipes.CreateType;
+                            drawButton = true;
+
                         }
                     }
                 }
@@ -147,6 +150,9 @@ public class AlchemistTable : UIState {
                     if (ReagentSlot[i].IsHoverSlot) { DrawText(textPos, "Reagent"); }
                 }
             }
+        }
+        if (drawButton) {
+            DrawButton(spriteBatch, buttonPos, reagent);
         }
 
         if (!isFist && flask.IsHoverSlot && flask.Item.type == ItemID.None) { DrawText(textPos, "FlaskItem"); }
@@ -199,14 +205,12 @@ public class AlchemistTable : UIState {
             i++;
         }
     }
-    void DrawButton(SpriteBatch sprite, Vector2 pos) {
-        button.Init(1, 5);
-        button.RowCount = 1;
-        button.Update();
+    void DrawButton(SpriteBatch sprite, Vector2 pos, AlchemistReagent createType) {
         if (Hover("TestAlchemicalPotionSlotFrame1", pos: pos)) {
-            if (Main.mouseLeft && Main.mouseRightRelease) { flask.Item.Get<AlchemicalItems>().AddReagent(GetReagent<Poison>()); }         
+            if (Main.mouseLeft && Main.mouseLeftRelease) {
+                flask.Item.Get<AlchemicalItems>().AddReagent(createType);
+            }
         }
-        Texture2D buttonTexture = GetUI(ShortCat[0] + "TestAlchemicalTableButton").GetAsset().Value;
         //sprite.Draw(buttonTexture, pos, button.GetSource(buttonTexture), Color.White, 0f, button.GetSource(buttonTexture).Size() / 2f, 1f, button.Effects, 0f);
     }
 }

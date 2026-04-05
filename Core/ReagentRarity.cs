@@ -18,7 +18,7 @@ public abstract class ReagentRarity : CleaningType {
 
     public void Register() {
         foreach (AlchemistReagent reagent in AlchemistReagentManager.ReagentsData) {
-            reagent.SetRarity(this);
+           // reagent.SetRarity(this);
         }
     }
     public void AddID() {

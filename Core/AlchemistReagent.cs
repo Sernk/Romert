@@ -1,4 +1,5 @@
-﻿using Romert.Content.Reagents.Rarity;
+﻿using Romert.Content.Reagents.Proj;
+using Romert.Content.Reagents.Rarity;
 using Romert.Core.Exceptions;
 using Terraria.DataStructures;
 using Terraria.GameContent;
@@ -11,10 +12,13 @@ public abstract class AlchemistReagent : ModType, ILocalizedModType {
     public string SearchName { get; internal set; }
     public bool Synergy { get; internal set; }
     public AlchemistReagentData CurrentType { get; internal set; }
-    public ReagentRarity Rarity { get; set; }
+    public ReagentRarity Rarity { get; private set; }
+    public ReagentProjectile AlchemistProjectile { get; private set; }
 
     public void SetDefaults() {
         SearchName = LocalizationName;
+        SetRarity(GetReagentRarity<BaseRarity>());
+        SetProjectile(GetReagentProjectile<BaseProj>());
         SetStaticDefaults();
     }
 
@@ -82,6 +86,7 @@ public abstract class AlchemistReagent : ModType, ILocalizedModType {
     public virtual void Recipe(Alchemy alchemy) { }
     public virtual void DrawElement(SpriteBatch sb, Vector2 pos) => DrawElement2(sb, pos);
 
-    public virtual void SetRarity(ReagentRarity rarity) => Rarity = GetReagentRarity<BaseRarity>();
+    public void SetRarity(ReagentRarity rarity) => Rarity = rarity;
+    public void SetProjectile(ReagentProjectile projectile) => AlchemistProjectile = projectile;
     public override string ToString() => Name;
 }

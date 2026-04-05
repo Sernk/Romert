@@ -76,6 +76,7 @@ public class AlchemicalItems : GlobalItem {
                 }
             }
             if (isReagent && !Lists.Items.ReagentItem.Exists(x => x == entity.type)) { Lists.Items.ReagentItem.Add(entity.type); }
+            if (isFlask && !Lists.Projectiles.FlackProjType.Exists(x => x == entity.shoot)) { Lists.Items.ReagentItem.Add(entity.shoot); }
         }
     }
     public override bool PreDrawTooltip(Item item, ReadOnlyCollection<TooltipLine> lines, ref int x, ref int y) {
@@ -117,12 +118,18 @@ public class AlchemicalItems : GlobalItem {
         // UpdateInventory
         if (IsAlchemistPoisoningItems.Contains(item.type)) { player.Get<AlchemistPlayer>().AlchemistDatas[0].IsActive = true; }
         if (FlaskReagents != null) {
-            for (int i = 0; i < AlchemistReagentManager.ReagentsData.Count; i++) {
+            for (int i = 0; i < FlaskReagents.Length; i++) {
                 for (int j = 0; j < FlaskReagents.Length; j++) {
-                    if (AlchemistReagentManager.ReagentsData[i].CanBySynergia(FlaskReagents[j])) {
-                        AlchemistReagentManager.ReagentsData[i].Synergy = true;
-                        AlchemistReagentManager.ReagentsData[i].Synergia(player, item, FlaskReagents[j]);
-                    }
+                    if (FlaskReagents[i] != null && FlaskReagents[i] != null && FlaskReagents[i] != GetReagent<NoN>() && FlaskReagents[j] != GetReagent<NoN>() && FlaskReagents[i] != GetReagent<Look>() && FlaskReagents[j] != GetReagent<Look>()) {
+                        if (FlaskReagents[i].CanBySynergia(FlaskReagents[j])) {
+                            FlaskReagents[i].Synergy = true; ;
+                        }
+                        else { FlaskReagents[i].Synergy = false; }
+                        if (FlaskReagents[i].Synergy) {
+                            FlaskReagents[i].Synergia(player, item, FlaskReagents[j]);
+                        }
+                        else { FlaskReagents[i].SetStaticDefaults(); }
+                    } 
                 }
             }
         }
@@ -161,7 +168,7 @@ public class AlchemicalItems : GlobalItem {
                 }
             }
         }
-        if (!Lists.Items.FlaskItem.Contains(Main.HoverItem.type) && !Lists.Items.ReagentItem.Contains(Main.HoverItem.type) && !Main.LocalPlayer.Get<AlchemistBookPlayer>().HasBook || !Main.LocalPlayer.Get<AlchemistBookPlayer>().VisibleBookInfo) {
+        if (!Lists.Items.FlaskItem.Contains(Main.HoverItem.type) && !Lists.Items.ReagentItem.Contains(Main.HoverItem.type) && !Main.LocalPlayer.Get<AlchemistBookPlayer>().HasBook && !Main.LocalPlayer.Get<AlchemistBookPlayer>().VisibleBookInfo) {
             ReagentTooltips = null;
             GetInstance<Romert>().ReagentTooltipsUI.SetState(ReagentTooltips);
         }
@@ -181,9 +188,9 @@ public class AlchemicalItems : GlobalItem {
         }
     }
     public void AddReagent(AlchemistReagent reagent) {
-        for (int i = FlaskReagents.Length - 1; i >= 0; i--) {
-            if (FlaskReagents[i] == GetReagent<NoN>()) { FlaskReagents[i] = reagent; break; }
-        }
+        int slot = -1;
+        for (int i = FlaskReagents.Length - 1; i >= 0; i--) { if (FlaskReagents[i] == GetReagent<NoN>()) { slot = i; break; } }
+        if (slot != -1) { FlaskReagents[slot] = reagent; }
     }
     public void DrawReagentTooltipHeader(SpriteBatch sb, Vector2 pos, Vector2 centerPos, AlchemistReagent reagent) {
         float tooltipsSize = pos.X + 12 - centerPos.X;

@@ -1,4 +1,6 @@
 ﻿using Romert.Common.GlobalItems;
+using Romert.Content.Projectiles;
+using Romert.Content.Projectiles.Alchemist;
 
 namespace Romert.Content.Items.Weapons.Alchemical;
 
@@ -21,5 +23,6 @@ public class BaseFlask : AbstractAlchemicalItem {
         Item.autoReuse = false;
         Item.IsAlchemistPoisoning();
         Item.Get<AlchemicalItems>().AddSlot(Name, 0, 0, 0);
+        Item.shoot = ProjectileType<BaseFlaskProj>();
     }
 }

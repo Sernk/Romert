@@ -8,8 +8,7 @@ namespace Romert.UIs;
 
 public class ReagentTooltips(Vector2 pos, Vector2 centerPos, Item item, AlchemistReagent reagent, AlchemistReagent[] reagents) : UIState {
     public override void Update(GameTime gameTime) {
-
-        if (item == null && reagents[0] == null && reagent == GetReagent<NoNInItem>() && !Main.LocalPlayer.Get<AlchemistBookPlayer>().HasBook && !Main.LocalPlayer.Get<AlchemistBookPlayer>().VisibleBookInfo) {
+        if (Main.HoverItem.type == 0 || item == null && reagents[0] == null && reagent == GetReagent<NoNInItem>() && !Main.LocalPlayer.Get<AlchemistBookPlayer>().HasBook && !Main.LocalPlayer.Get<AlchemistBookPlayer>().VisibleBookInfo) {
             GetInstance<Romert>().ReagentTooltipsUI.SetState(null);
         }
     }

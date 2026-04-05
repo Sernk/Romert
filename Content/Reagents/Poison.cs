@@ -6,7 +6,7 @@ namespace Romert.Content.Reagents;
 public class Poison : AlchemistReagent {
     public override void Recipe(Alchemy alchemy) {
         alchemy.Create(this);
-        alchemy.AddIngredient(GetReagent<Slime>(), 10);
+        alchemy.AddIngredient(this, 10);
         alchemy.Register();
     }
     public override void Register(RegisterReagent register) {
@@ -22,7 +22,7 @@ public class Poison : AlchemistReagent {
     }
     public override bool CanNewShot(bool synergy) => true;
     public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
-        Projectile.NewProjectile(source, position, velocity, ProjectileID.RubyBolt, damage, knockback, player.whoAmI);
+      //  Projectile.NewProjectile(source, position, velocity, ProjectileID.RubyBolt, damage, knockback, player.whoAmI);
         return true;
     }
 }
