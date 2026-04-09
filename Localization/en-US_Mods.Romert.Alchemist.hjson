@@ -14,7 +14,7 @@ Table: {
 	SlotInfo: {
 		Locked: Locked cell
 		Empty: Empty cell
-		Сontains: Contains a reagent
+		Contains: Contains a reagent
 	}
 }
 

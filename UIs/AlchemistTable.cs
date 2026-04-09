@@ -111,7 +111,7 @@ public class AlchemistTable : UIState {
         Rectangle rect = new((int)(pos2.X - size.X / 2f), (int)(pos2.Y - size.Y / 2f), texture.Width / frameX, texture.Height / frameY);
         return rect.Contains(Main.mouseX, Main.mouseY);
     }
-    protected override void DrawSelf(SpriteBatch spriteBatch) {
+    public override void DrawSelf(SpriteBatch spriteBatch) {
         base.DrawSelf(spriteBatch);
 
         Player player = Main.LocalPlayer;
@@ -198,7 +198,7 @@ public class AlchemistTable : UIState {
             }
             if (item.Get<AlchemicalItems>().FlaskReagents[i] != GetReagent<Look>() && item.Get<AlchemicalItems>().FlaskReagents[i] != GetReagent<NoN>()) {
                 frame = 1;
-                if (Hover("TestAlchemicalPotionSlot", new(pos.X + scale - textScale, pos.Y), 2)) { text = "SlotInfo.Сontains"; }
+                if (Hover("TestAlchemicalPotionSlot", new(pos.X + scale - textScale, pos.Y), 2)) { text = "SlotInfo.Contains"; }
             }
             Draw(sprite, "TestAlchemicalPotionSlot", new(pos.X + scale, pos.Y), new(3, 1, frame));
             scale += 46;

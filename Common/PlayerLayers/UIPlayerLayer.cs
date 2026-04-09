@@ -6,7 +6,7 @@ public abstract class UIPlayerLayer : PlayerDrawLayer {
     public abstract bool IsVisible(Player player);
     public abstract void Draw(ref PlayerDrawSet drawInfo, Player player, Vector2 pos);
     public sealed override Position GetDefaultPosition() => PlayerDrawLayers.BeforeFirstVanillaLayer;
-    protected sealed override void Draw(ref PlayerDrawSet drawInfo) {
+    public sealed override void Draw(ref PlayerDrawSet drawInfo) {
         Player player = drawInfo.drawPlayer;
         if (drawInfo.shadow != 0f || player.dead || player.whoAmI != Main.myPlayer) { return; }
         float mountScale = player.mount.Active ? 20 : 0;

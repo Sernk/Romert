@@ -91,7 +91,7 @@ public class AlchemistBook : UIState {
     static string Loc(string locKey, string sub = "") => RomertUtil.AddLoc.Loc(LocCategory[0] + ".Book" + sub, locKey);
     Texture2D GetTexture2D(string name) => GetUI(ShortCat[0] + "Book/" + name).GetAsset().Value;
     #endregion
-    protected override void DrawSelf(SpriteBatch spriteBatch) {
+    public override void DrawSelf(SpriteBatch spriteBatch) {
         base.DrawSelf(spriteBatch);
 
         buttonHoverNow.Clear();

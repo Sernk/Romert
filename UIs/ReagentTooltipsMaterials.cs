@@ -4,7 +4,7 @@ using Terraria.GameContent;
 
 namespace Romert.UIs;
 
-public class ReagentTooltipsReagent {
+public class ReagentTooltipsMaterials {
     public static void Draw(SpriteBatch sb, Vector2 pos, Vector2 centerPos, AlchemistReagent reagent) {
         if (!Main.LocalPlayer.Get<AlchemistBookPlayer>().OpenType.Contains(reagent.Name)) { return; }
 

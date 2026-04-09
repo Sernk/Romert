@@ -68,7 +68,7 @@ public abstract class AlchemistReagent : ModType, ILocalizedModType {
             if (!HasAsset(TexturePatch) && Main.netMode != NetmodeID.Server) { throw new NoTexture(Name); }
         }
     }
-    protected sealed override void Register() => ModTypeLookup<AlchemistReagent>.Register(this);
+    public sealed override void Register() => ModTypeLookup<AlchemistReagent>.Register(this);
     
     public virtual bool HasTexture => true;
 
