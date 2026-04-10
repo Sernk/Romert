@@ -1,4 +1,4 @@
-﻿using Romert.Core;
+﻿using Romert.Common.KeyBindStyles;
 using System.Collections.Generic;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Chat;
@@ -10,17 +10,29 @@ using Terraria.UI.Chat;
 namespace Romert.Common.Hooks.Ons;
 
 public class HookForKeyBindings : ILoadable {
-    public List<BgReagent> ActiveReagents = [];
+    public void Load(Mod mod) {
+        On_UIKeybindingListItem.DrawSelf += EditNameBg;
+        On_UIKeybindingSimpleListItem.DrawSelf += EditResetBg;
+    }
 
-    public void Load(Mod mod) => On_UIKeybindingListItem.DrawSelf += EditNameBg;
+    #region Vanilla code
     static void PreBg(UIKeybindingListItem self, out CalculatedStyle dimensions, out float num2, out Vector2 position, out bool flag, out Color value, out Color color) {
         dimensions = self.GetDimensions();
         num2 = dimensions.Width + 1f;
         position = new(dimensions.X, dimensions.Y);
         flag = PlayerInput.ListeningTrigger == self._keybind;
-        value = (flag ? Color.Gold : (self.IsMouseHovering ? Color.White : Color.Silver));
+        value = flag ? Color.Gold : (self.IsMouseHovering ? Color.White : Color.Silver);
         value = Color.Lerp(value, Color.White, self.IsMouseHovering ? 0.5f : 0f);
-        color = (self.IsMouseHovering ? Color.White : Color.White.MultiplyRGBA(new Color(180, 180, 180)));
+        color = self.IsMouseHovering ? self._color : self._color.MultiplyRGBA(new Color(180, 180, 180));
+    }
+    static void PreBG(UIKeybindingSimpleListItem self, out CalculatedStyle dimensions, out float num2, out Vector2 position, out Vector2 baseScale, out Color value, out Color color) {
+        dimensions = self.GetDimensions();
+        num2 = dimensions.Width + 1f;
+        position = new(dimensions.X, dimensions.Y);
+        baseScale = new(0.8f);
+        value = (self.IsMouseHovering ? Color.White : Color.Silver);
+        value = Color.Lerp(value, Color.White, self.IsMouseHovering ? 0.5f : 0f);
+        color = (self.IsMouseHovering ? self._color : self._color.MultiplyRGBA(new Color(180, 180, 180)));
     }
     static void PostBg(UIKeybindingListItem self, SpriteBatch spriteBatch, CalculatedStyle dimensions, float num2, Vector2 position, bool flag, Color value, out Vector2 newPosition) {
         position.X += 8f;
@@ -40,24 +52,56 @@ public class HookForKeyBindings : ILoadable {
         GlyphTagHandler.GlyphsScale = 1f;
         newPosition = position;
     }
-    void EditNameBg(On_UIKeybindingListItem.orig_DrawSelf orig, UIKeybindingListItem self, SpriteBatch spriteBatch) {
-        if (self.GetFriendlyName() != Romert.ToggleAuraModeKeybind.DisplayName.Value) { orig(self, spriteBatch); }
-        else {
-            PreBg(self, out CalculatedStyle dimensions, out float num2, out Vector2 position, out bool flag, out Color value, out Color color);
-            spriteBatch.Draw(GetUI(ShortCat[1] + "Settings_Pane_Book").GetAsset().Value, position: new Vector2(position.X + 1, position.Y), color);
-            PostBg(self, spriteBatch, dimensions, num2, position, flag, value, out _);
-            if (ActiveReagents.Count < 3 && Main.rand.NextBool(20)) {
-                int index = Main.rand.Next(AlchemistReagentManager.ReagentsData.Count);
-                if (AlchemistReagentManager.ReagentsData[index].HasTexture) {
-                    BgReagent reagent = new() { TexturePatch = AlchemistReagentManager.ReagentsData[index].TexturePatch, Position = new Vector2(Main.rand.Next(15, 290), Main.rand.Next(10, 18)) };
-                    ActiveReagents.Add(reagent);
-                }
-            }
-            for (int i = ActiveReagents.Count - 1; i >= 0; i--) {
-                ActiveReagents[i].Update(ref ActiveReagents);
-                if (ActiveReagents.Count != 0) { ActiveReagents[i].Draw(spriteBatch, position + ActiveReagents[i].Position); }
-            }
+    static void PostBg(UIKeybindingSimpleListItem self, Vector2 position, CalculatedStyle dimensions, Vector2 baseScale, SpriteBatch spriteBatch, Color value, float num2) {
+        position.X += 8f;
+        position.Y += 2f + 6f;
+        string text = self._GetTextFunction();
+        Vector2 stringSize = ChatManager.GetStringSize(FontAssets.ItemStack.Value, text, baseScale);
+        if (stringSize.X > dimensions.Width) {
+            stringSize.X *= dimensions.Width / stringSize.X;
+            baseScale.X *= dimensions.Width / stringSize.X;
         }
+        position.X = dimensions.X + dimensions.Width / 2f - stringSize.X / 2f;
+        ChatManager.DrawColorCodedStringWithShadow(spriteBatch, FontAssets.ItemStack.Value, text, position, value, 0f, Vector2.Zero, baseScale, num2);
     }
-    public void Unload() => On_UIKeybindingListItem.DrawSelf -= EditNameBg;
+    #endregion
+
+    void EditNameBg(On_UIKeybindingListItem.orig_DrawSelf orig, UIKeybindingListItem self, SpriteBatch spriteBatch) {
+        if (KeyBindStyle.Styles.Count != 0) {
+            for (int i = 0; i < KeyBindStyle.Styles.Count; i++) {
+                if (KeyBindStyle.Styles[i].Active(self.GetFriendlyName())) {
+                    PreBg(self, out CalculatedStyle dimensions, out float num2, out Vector2 position, out bool flag, out Color value, out Color color);
+                    KeyBindStyle.Styles[i].PreBgEditName(spriteBatch, position, self.IsMouseHovering, color);
+                    KeyBindStyle.Styles[i].NamePos = position;
+                    PostBg(self, spriteBatch, dimensions, num2, position, flag, value, out _);
+                    KeyBindStyle.Styles[i].PostBgEditName(spriteBatch, position, self.IsMouseHovering, color);
+                } 
+                else { orig(self, spriteBatch); }
+            }
+        } 
+        else { orig(self, spriteBatch); }
+    }
+    void EditResetBg(On_UIKeybindingSimpleListItem.orig_DrawSelf orig, UIKeybindingSimpleListItem self, SpriteBatch spriteBatch) {
+        CalculatedStyle dimensions = self.GetDimensions();
+        Vector2 position = new(dimensions.X, dimensions.Y);
+        position.X += 8f;
+        position.Y += 8f;
+        if (KeyBindStyle.Styles.Count != 0) {
+            for (int i = 0; i < KeyBindStyle.Styles.Count; i++) {
+                if (position.Y == KeyBindStyle.Styles[i].NamePos.Y + 8) {
+                    PreBG(self, out dimensions, out float num2, out position, out Vector2 baseScale, out Color value, out Color color);
+                    KeyBindStyle.Styles[i].PreBgEditReset(spriteBatch, position, self.IsMouseHovering, color);
+                    PostBg(self, position, dimensions, baseScale, spriteBatch, value, num2);
+                    KeyBindStyle.Styles[i].PostBgEditReset(spriteBatch, position, self.IsMouseHovering, color);
+                } 
+                else { orig(self, spriteBatch); }
+            }
+        } 
+        else { orig(self, spriteBatch); }
+    }
+
+    public void Unload() {
+        On_UIKeybindingListItem.DrawSelf -= EditNameBg;
+        On_UIKeybindingSimpleListItem.DrawSelf -= EditResetBg;
+    }
 }

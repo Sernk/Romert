@@ -21,11 +21,6 @@ public class Romert : Mod {
         ReagentTooltipsUI = new();
         ToggleAuraModeKeybind = KeybindLoader.RegisterKeybind(this, "OpenAlchemistBook", "J");
         GraphicsSetting.InitGraphics.Init(Assets);
-        // New KeyBord setting for Romert
-        // Disable name but not disable Mod name and reset
-        //On_UIKeybindingListItem.DrawSelf += (orig, self, spriteBatch) => { };
-        // Disable reset but not disable Mod name
-        //On_UIKeybindingSimpleListItem.DrawSelf += (orig, self, spriteBatch) => { };
         //On_UIManageControls.CreateElementGroup += (orig, self, parent, bindings, currentInputMode, color) => {
         //    int SnapPointIndex = UIManageControls.SnapPointIndex;
         //    for (int i = 0; i < bindings.Count; i++) {
