@@ -1,9 +1,12 @@
 ﻿using Romert.Common.KeyBindStyles;
+using Romert.UIs;
 using System.Collections.Generic;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Chat;
 using Terraria.GameContent.UI.Elements;
+using Terraria.GameContent.UI.States;
 using Terraria.GameInput;
+using Terraria.ModLoader.Config.UI;
 using Terraria.UI;
 using Terraria.UI.Chat;
 
@@ -11,6 +14,7 @@ namespace Romert.Common.Hooks.Ons;
 
 public class HookForKeyBindings : ILoadable {
     public void Load(Mod mod) {
+        On_UIManageControls.CreateElementGroup += EditModName;
         On_UIKeybindingListItem.DrawSelf += EditNameBg;
         On_UIKeybindingSimpleListItem.DrawSelf += EditResetBg;
     }
@@ -66,6 +70,63 @@ public class HookForKeyBindings : ILoadable {
     }
     #endregion
 
+    void EditModName(On_UIManageControls.orig_CreateElementGroup orig, UIManageControls self, UIList parent, List<string> bindings, InputMode currentInputMode, Color color) {    
+        int SnapPointIndex = UIManageControls.SnapPointIndex;
+        for (int i = 0; i < bindings.Count; i++) {
+            #region Vanill code
+            UISortableElement uISortableElement = new(i);
+            uISortableElement.Width.Set(0f, 1f);
+            uISortableElement.Height.Set(30f, 0f);
+            uISortableElement.HAlign = 0.5f;
+            parent.Add(uISortableElement);
+            if (UIManageControls._BindingsHalfSingleLine.Contains(bindings[i])) {
+                UIElement uIElement = self.CreatePanel(bindings[i], currentInputMode, color);
+                uIElement.Width.Set(0f, 0.5f);
+                uIElement.HAlign = 0.5f;
+                uIElement.Height.Set(0f, 1f);
+                uIElement.SetSnapPoint("Wide", SnapPointIndex++);
+                uISortableElement.Append(uIElement);
+                continue;
+            }
+            if (UIManageControls._BindingsFullLine.Contains(bindings[i])) {
+                UIElement uIElement2 = self.CreatePanel(bindings[i], currentInputMode, color);
+                uIElement2.Width.Set(0f, 1f);
+                uIElement2.Height.Set(0f, 1f);
+                uIElement2.SetSnapPoint("Wide", SnapPointIndex++);
+                uISortableElement.Append(uIElement2);
+                continue;
+            }
+            #endregion
+            if (UIManageControls._ModNames.Contains(bindings[i])) {
+                UIElement uIElement3;
+
+                if (Romert.Instruction.DisplayName.Contains(bindings[i])) { uIElement3 = new CustomHeaderElement(bindings[i]); }
+                else { uIElement3 = new HeaderElement(bindings[i]); }
+
+                uIElement3.Width.Set(0f, 1f);
+                uIElement3.Height.Set(0f, 1f);
+                uIElement3.SetSnapPoint("Wide", SnapPointIndex++);
+                uISortableElement.Append(uIElement3);
+                continue;
+            }
+            #region Vanill code
+            UIElement uIElement4 = self.CreatePanel(bindings[i], currentInputMode, color);
+            uIElement4.Width.Set(-5f, 0.5f);
+            uIElement4.Height.Set(0f, 1f);
+            uIElement4.SetSnapPoint("Thin", SnapPointIndex++);
+            uISortableElement.Append(uIElement4);
+            i++;
+            if (i < bindings.Count) {
+                uIElement4 = self.CreatePanel(bindings[i], currentInputMode, color);
+                uIElement4.Width.Set(-5f, 0.5f);
+                uIElement4.Height.Set(0f, 1f);
+                uIElement4.HAlign = 1f;
+                uIElement4.SetSnapPoint("Thin", SnapPointIndex++);
+                uISortableElement.Append(uIElement4);
+            }
+            #endregion
+        }
+    }
     void EditNameBg(On_UIKeybindingListItem.orig_DrawSelf orig, UIKeybindingListItem self, SpriteBatch spriteBatch) {
         if (KeyBindStyle.Styles.Count != 0) {
             for (int i = 0; i < KeyBindStyle.Styles.Count; i++) {
@@ -101,6 +162,7 @@ public class HookForKeyBindings : ILoadable {
     }
 
     public void Unload() {
+        On_UIManageControls.CreateElementGroup -= EditModName;
         On_UIKeybindingListItem.DrawSelf -= EditNameBg;
         On_UIKeybindingSimpleListItem.DrawSelf -= EditResetBg;
     }
