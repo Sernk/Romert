@@ -7,7 +7,7 @@ public class Romert : Mod {
     public static Mod Instruction { get; private set; }
     Romert() { Instruction = this; }
 
-    public const string ModName = "Romert";
+    public static string ModName { get { return Instruction is null ? "Romert" : Instruction.DisplayName; } }
 
     public UserInterface AlchemistTableUI { get; private set; }
     public UserInterface AlchemistBookUI { get; private set; }

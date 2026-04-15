@@ -19,24 +19,24 @@ public class AlchemistBookPlayer : ModPlayer {
 
 
     public override void LoadData(TagCompound tag) {
-        VisibleBookInfo = tag.GetBool($"{Romert.ModName}_Visible");
-
-        OpenType = tag.Get<List<string>>($"{Romert.ModName}_Open_Reagents");
-        Current =  tag.Get<List<string>>($"{Romert.ModName}_Current_Reagents");
-        Locked = tag.Get<List<string>>($"{Romert.ModName}_Locked_Reagents");
-        if (tag.TryGet($"{Romert.ModName}_LockedType_Reagents", out List<TagCompound> list)) {
+        VisibleBookInfo = tag.GetBool($"{Romert.ModName}:Visible");
+        
+        OpenType = tag.Get<List<string>>($"{Romert.ModName}:Open_Reagents");
+        Current =  tag.Get<List<string>>($"{Romert.ModName}:Current_Reagents");
+        Locked = tag.Get<List<string>>($"{Romert.ModName}:Locked_Reagents");
+        if (tag.TryGet($"{Romert.ModName}:LockedType_Reagents", out List<TagCompound> list)) {
             foreach (TagCompound t in list) { LockedType.Add(ItemIO.Load(t)); }
         }
     }
     public override void SaveData(TagCompound tag) {
-        tag[$"{Romert.ModName}_Visible"] = VisibleBookInfo;
+        tag[$"{Romert.ModName}:Visible"] = VisibleBookInfo;
 
-        tag[$"{Romert.ModName}_Open_Reagents"] = OpenType;
-        tag[$"{Romert.ModName}_Current_Reagents"] = Current;
-        tag[$"{Romert.ModName}_Locked_Reagents"] = Locked;
+        tag[$"{Romert.ModName}:Open_Reagents"] = OpenType;
+        tag[$"{Romert.ModName}:Current_Reagents"] = Current;
+        tag[$"{Romert.ModName}:Locked_Reagents"] = Locked;
         List<TagCompound> locked = [];
         foreach (Item item in LockedType) { locked.Add(ItemIO.Save(item)); }
-        tag[$"{Romert.ModName}_LockedType_Reagents"] = locked;
+        tag[$"{Romert.ModName}:LockedType_Reagents"] = locked;
     }
     public override void Initialize() {
         HasBook = false;

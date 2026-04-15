@@ -45,12 +45,12 @@ public class AlchemicalItems : GlobalItem {
                     }
                 }
             }
-            tag[Romert.ModName + "ActiveReagent"] = ReagentName;
+            tag[Romert.ModName + ":" + "ActiveReagent"] = ReagentName;
         }
     }
     public sealed override void LoadData(Item item, TagCompound tag) {
         if (isFlask) {
-            List<string> ReagentName = tag.Get<List<string>>(Romert.ModName + "ActiveReagent");
+            List<string> ReagentName = tag.Get<List<string>>(Romert.ModName + ":" + "ActiveReagent");
             if (ReagentName.Count != 0) {
                 for (int i = 0; i < FlaskReagents.Length; i++) {
                     FlaskReagents[i] = GetReagent(ReagentName[i]);
@@ -90,9 +90,7 @@ public class AlchemicalItems : GlobalItem {
         }
         if (ReagentTooltips == null && Main.LocalPlayer.Get<AlchemistBookPlayer>().HasBook && Main.LocalPlayer.Get<AlchemistBookPlayer>().VisibleBookInfo) {
             if (FlaskReagents[0] != null) { ReagentTooltips = new ReagentTooltips(new(x - 12, y + scale + 12), new(x + max / 2, y + scale - 1), item, Reagent, FlaskReagents); }
-            else {
-                if (Reagent != GetReagent<NoNInItem>()) { ReagentTooltips = new ReagentTooltips(new(x - 12, y + scale + 12), new(x + max / 2, y + scale - 1), item, Reagent, FlaskReagents); }
-            }
+            else if (Reagent != GetReagent<NoNInItem>()) { ReagentTooltips = new ReagentTooltips(new(x - 12, y + scale + 12), new(x + max / 2, y + scale - 1), item, Reagent, FlaskReagents); }
             GetInstance<Romert>().ReagentTooltipsUI.SetState(ReagentTooltips);
         }
         DrawReagentTooltipHeader(Main.spriteBatch, new(x - 12, y + scale + 12), new(x + max / 2, y + scale - 1), Reagent);

@@ -20,5 +20,4 @@ public class ReagentTooltips(Vector2 pos, Vector2 centerPos, Item item, Alchemis
         }
         else { ReagentTooltipsMaterials.Draw(spriteBatch, pos, centerPos, reagent); }
     }
-    public static Texture2D GetAlchemistTexture(string name) => Request<Texture2D>("Romert/Asset/Textures/UI" + ShortCat[0] + name).Value;
 }

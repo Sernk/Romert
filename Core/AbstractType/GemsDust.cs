@@ -19,10 +19,11 @@ public abstract class GemsDust : ModItem {
     }
     public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
         //Texture2D tex = TextureAssets.Item[Type].Value;
-        //Effect effect = InitGraphics.Rainbow.Value;
+        //Effect effect = InitGraphics.Droj.Value;
 
-        //effect.Parameters["uTextureSize"].SetValue(tex.Size());
-        //effect.Parameters["Time"].SetValue(Main.GlobalTimeWrappedHourly * 2f);
+        //effect.Parameters["Time"].SetValue(Main.GlobalTimeWrappedHourly);
+        //effect.Parameters["Strength"].SetValue(0.02f);
+        ////effect.Parameters["Time"].SetValue(Main.GlobalTimeWrappedHourly * 2f);
 
         //spriteBatch.End();
         //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, effect, Main.UIScaleMatrix);
@@ -31,6 +32,6 @@ public abstract class GemsDust : ModItem {
         //spriteBatch.End();
         //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
 
-        return true;
+        return false;
     }
 }
