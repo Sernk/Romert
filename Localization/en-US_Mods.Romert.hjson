@@ -20,7 +20,10 @@ Items: {
 	}
 }
 
-Tiles.AlchemicalShelf.MapEntry: Alchemical Shelf
+Tiles: {
+	AlchemicalShelf.MapEntry: Alchemical Shelf
+	ArgiteOreTile.MapEntry: Argite Ore Tile
+}
 
 Projectiles: {
 	BaseFlaskProj.DisplayName: Base Flask Proj

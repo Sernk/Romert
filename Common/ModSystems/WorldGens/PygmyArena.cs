@@ -44,7 +44,7 @@ public class PygmyArena : BaseWorldGen {
         RomertVars.JungleLeftX = jungleX2;
         jungleX0 = (jungleX1 + jungleX2) / 2;
         RomertVars.JungleCenterX = jungleX0;
-        CleaningAll(RomertVars.JungleCenterX, Y, RomertVars.JungleCenterX + 100, Y + 100);
+        //CleaningAll(RomertVars.JungleCenterX, Y, RomertVars.JungleCenterX + 100, Y + 100);
 
         return true;
     }
