@@ -10,7 +10,6 @@
 	  <Folder Include="Asset\Textures\" />
 	  <Folder Include="Asset\Soung\" />
 	  <Folder Include="Asset\Effects\" />
-	  <Folder Include="Common\Hooks\ILs\" />
 		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all" />
 		<Publicize Include="tModLoader" PublicizeTarget="Fields, Types, Methods" />
 	</ItemGroup>

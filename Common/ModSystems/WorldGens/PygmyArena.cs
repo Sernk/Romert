@@ -12,6 +12,10 @@ public class PygmyArena : BaseWorldGen {
     public override bool GensBool { get => Gen; set => Gen = value; }
     public override int Index => 1;
     public override bool Do_MakeGen(GenerationProgress progress) {
+        if (progress is not null) {
+            progress.Message = "Pygmy Arena";
+            progress.Set(0.33f);
+        }
         int neededBlockCount = 250;
        
         int blockCount = 0;

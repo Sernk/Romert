@@ -26,13 +26,10 @@ Tiles: {
 }
 
 Projectiles: {
-	BaseFlaskProj.DisplayName: Base Flask Proj
-	SlimeLyga.DisplayName: Slime Lyga
 	SlimeBubble.DisplayName: Slime Bubble
 	SlomeBoble_Poison.DisplayName: Slome Boble_ Poison
+	ArgiteBlast.DisplayName: Argite Blast
+	BaseFlaskProj.DisplayName: Base Flask Proj
 }
 
-Keybinds: {
-	ToggleAuraMode.DisplayName: Toggle Aura Mode
-	OpenAlchemistBook.DisplayName: Open Alchemist Book
-}
+Keybinds.OpenAlchemistBook.DisplayName: Open Alchemist Book

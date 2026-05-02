@@ -44,7 +44,7 @@ public abstract class ReagentRarity : CleaningType {
     public virtual Color AnimatedColor() => Animated(null, 0);
     public virtual void SettingRarity() { }
 
-    public Color Animated(Color[] colors, int time) {
+    public  static Color Animated(Color[] colors, int time) {
         int transitionTime = time;
         int colorCount = colors.Length;
         int totalTime = transitionTime * colorCount;

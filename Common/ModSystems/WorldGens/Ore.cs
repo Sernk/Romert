@@ -9,7 +9,7 @@ public class Ore {
         public class Style {
             /// Start Position
             public Vector2 Position;
-            /// 0 - empty, 1 - Stone, 2 - ArgiteOreTile
+            /// 0 - non, 1 - Stone, 2 - ArgiteOreTile, 3 - empty 
             byte[,] BlockType;
             /// 0 - empty, 1 - hamer, 2 - /|, 3 - |/, 4 - \|, 5 - |\
             byte[,] SlopeType;
@@ -20,11 +20,11 @@ public class Ore {
                         BlockType = new byte[,] {
                             {1,1,1,1,1,1,1,0,0}, // 1
                             {1,2,2,2,2,2,1,1,0}, // 2
-                            {1,2,2,0,1,1,1,1,1}, // 3
-                            {1,2,0,0,1,0,2,2,1}, // 4
+                            {1,2,2,3,1,1,1,1,1}, // 3
+                            {1,2,3,3,1,3,2,2,1}, // 4
                             {1,2,2,2,1,2,2,2,1}, // 5
-                            {1,2,2,2,1,0,0,2,1}, // 6
-                            {1,1,1,1,1,0,2,2,1}, // 7
+                            {1,2,2,3,1,3,3,2,1}, // 6
+                            {1,1,1,1,1,3,2,2,1}, // 7
                             {0,1,1,2,2,2,2,2,1}, // 8
                             {0,0,1,1,1,1,1,1,1}  // 9
                         };
@@ -45,10 +45,10 @@ public class Ore {
                             {1,1,1,1,1,1,1,1,1,1}, // 1
                             {1,2,2,1,1,1,2,2,2,1}, // 2
                             {1,1,1,1,2,2,2,2,2,1}, // 3
-                            {1,2,2,2,2,0,0,2,2,1}, // 4
-                            {1,1,2,2,0,0,0,2,1,1}, // 5
-                            {1,1,2,0,0,0,2,2,1,1}, // 6
-                            {1,2,2,0,0,2,2,2,2,1}, // 7
+                            {1,2,2,2,2,3,3,2,2,1}, // 4
+                            {1,1,2,2,3,3,3,2,1,1}, // 5
+                            {1,1,2,3,3,3,2,2,1,1}, // 6
+                            {1,2,2,3,3,2,2,2,2,1}, // 7
                             {1,2,2,2,2,2,1,1,1,1}, // 8 
                             {1,2,2,2,1,1,1,2,2,1}, // 9 
                             {1,1,1,1,1,1,1,1,1,1}  // 10
@@ -71,13 +71,13 @@ public class Ore {
                             {0,0,1,1,1,1,1,0,0}, // 1
                             {1,1,1,1,1,1,1,1,1}, // 2
                             {1,1,1,1,1,1,1,1,1}, // 3
-                            {1,2,0,1,2,1,0,2,1}, // 4
-                            {1,2,2,0,2,0,2,2,1}, // 5
+                            {1,2,3,1,2,1,3,2,1}, // 4
+                            {1,2,2,3,2,3,2,2,1}, // 5
                             {1,2,2,2,2,2,2,2,1}, // 6
                             {1,2,2,2,2,2,2,2,1}, // 7
                             {1,1,1,2,2,2,1,1,1}, // 8
-                            {0,1,2,0,2,0,2,1,0}, // 9
-                            {0,1,2,0,2,0,2,1,0}, // 10
+                            {0,1,2,3,2,3,2,1,0}, // 9
+                            {0,1,2,3,2,3,2,1,0}, // 10
                             {0,1,2,2,2,2,2,1,0}, // 11
                             {0,1,2,2,2,2,2,1,0}, // 12
                             {0,1,1,1,1,1,1,1,0}, // 13
@@ -107,12 +107,13 @@ public class Ore {
                         if (!WorldGen.InWorld(worldX, worldY, 10)) { continue; }
 
                         Tile tile = Framing.GetTileSafely(worldX, worldY);
-                        tile.ClearEverything();
 
+                        if (BlockType[y, x] > 0) { tile.ClearTile(); }
                         switch (BlockType[y, x]) {
                             case 0: break;
                             case 1: tile.TileType = TileID.Stone; tile.HasTile = true; break;
                             case 2: tile.TileType = (ushort)TileType<ArgiteOreTile>(); tile.HasTile = true; break;
+                            case 3: break;
                         }
                         switch (SlopeType[y, x]) {
                             case 0: break;
@@ -130,7 +131,6 @@ public class Ore {
         public bool gen = false;
         public override bool GensBool { get => gen; set => gen = value; }
         public override string SaveName => "Argite";
-        //public override string VanillaIndexName => "Jungle Temple";
         public override int Index => 1;
 
         public override bool Do_MakeGen(GenerationProgress progress) {
@@ -138,9 +138,14 @@ public class Ore {
             for (int k = 0; k < 60; k++) {
                 int i2 = WorldGen.genRand.Next(RomertVars.JungleRightX, RomertVars.JungleLeftX);
                 int j2 = WorldGen.genRand.Next((int)(Main.maxTilesY * .3f), (int)(Main.maxTilesY * .45f));
-                int a = Main.rand.Next(0, 3);
+                ArgiteOreStyle argite = Main.rand.Next(0, 3) switch {
+                    0 => ArgiteOreStyle.Mini,
+                    1 => ArgiteOreStyle.Medium,
+                    2 => ArgiteOreStyle.Big,
+                    _ => throw new System.NotImplementedException(),
+                };
                 style.Position = new Vector2(i2, j2);
-                style.Gen(ArgiteOreStyle.Big);
+                style.Gen(argite);
             }
             return true;
         }           
